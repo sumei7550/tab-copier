@@ -25,6 +25,13 @@ body {
   font-size: 15px;
   color: #1e1e1e;
   flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.title-icon {
+  display: block;
+  flex-shrink: 0;
 }
 .link-btn {
   background: none;
@@ -106,6 +113,14 @@ body {
   font-weight: 500;
   cursor: pointer;
   transition: background 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.btn-icon {
+  display: block;
+  flex-shrink: 0;
 }
 .primary-btn:hover {
   background: #1557b0;

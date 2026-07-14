@@ -9,13 +9,22 @@
 <body>
   <div class="container">
     <div class="header">
-      <span class="title">📋 Tab Copier</span>
+      <span class="title">
+        <img src="icons/icon24.png" alt="" class="title-icon" width="24" height="24" />
+        Tab Copier
+      </span>
       <button type="button" id="selectAllBtn" class="link-btn">Deselect All</button>
       <span class="count" id="countLabel">Selected 0</span>
     </div>
     <div class="tab-list" id="tabList"></div>
     <div class="footer">
-      <button id="copyBtn" class="primary-btn">📋 Copy All</button>
+      <button id="copyBtn" class="primary-btn">
+        <svg class="btn-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+        </svg>
+        Copy All
+      </button>
       <div id="toast" class="toast hidden">✅ Copied</div>
       <a href="https://ko-fi.com/sumei7550" target="_blank" rel="noopener noreferrer" class="kofi-link">
         ☕ Buy me a coffee
