@@ -1,0 +1,15 @@
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+*.swp
+
+# Packaging output
+*.zip
+
+# Just in case: never commit internal docs to this repo
+# (SOP / store copy should live in your private wiki repo instead)
+*SOP*.md
+STORE_INFO.md

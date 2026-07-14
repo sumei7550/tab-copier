@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tab Copier</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <span class="title">📋 Tab Copier</span>
+      <button type="button" id="selectAllBtn" class="link-btn">Deselect All</button>
+      <span class="count" id="countLabel">Selected 0</span>
+    </div>
+    <div class="tab-list" id="tabList"></div>
+    <div class="footer">
+      <button id="copyBtn" class="primary-btn">📋 Copy All</button>
+      <div id="toast" class="toast hidden">✅ Copied</div>
+      <a href="https://ko-fi.com/sumei7550" target="_blank" rel="noopener noreferrer" class="kofi-link">
+        ☕ Buy me a coffee
+      </a>
+    </div>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>
