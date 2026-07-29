@@ -6,7 +6,10 @@ A minimal Chrome extension that copies all open tab titles and URLs with one cli
 
 - 📋 One-click copy of all tabs in the current window
 - ✅ Select which tabs to include (with a Select All / Deselect All toggle for batch copying)
-- 📝 Output format: `[Title](URL)`, ready to paste into Notion, Obsidian, or any Markdown editor
+- 📝 Export Markdown, URLs, title + URL, or HTML links — ready for Notion, Obsidian, documents, and chat
+- 🔎 Filter tabs, copy from all windows, and optionally exclude pinned tabs, duplicate URLs, and tracking parameters
+- ⌨️ Keyboard shortcut support: `Alt+Shift+C` by default (customizable in Chrome shortcuts)
+- 🌍 Localized UI and store metadata: English, Chinese (Simplified/Traditional), Japanese, Korean, Spanish, German, French, Russian, Thai, Malay, Indonesian, and Brazilian Portuguese
 - 🔒 No data collection — everything runs locally in your browser
 - 🪶 Only one permission requested: `tabs`
 
@@ -34,7 +37,7 @@ tab-copier/
 
 ## Privacy
 
-Tab Copier does not collect, store, or transmit any user data. All processing happens locally in the browser using the `chrome.tabs` API to read open tab titles/URLs, and the Clipboard API to copy the generated text.
+Tab Copier does not collect or transmit any user data. All tab processing happens locally in the browser using the `chrome.tabs` API to read open tab titles/URLs, and the Clipboard API to copy the generated text. Only copy preferences are stored locally with `chrome.storage.local`; tab titles, URLs, and copied content are never stored.
 
 ## License
 

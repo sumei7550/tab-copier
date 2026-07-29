@@ -1,0 +1,11 @@
+:root { color-scheme: light dark; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+body { margin: 0; color: #202124; background: #fff; }
+main { max-width: 640px; margin: 48px auto; padding: 0 24px; }
+h1 { font-size: 28px; margin: 0 0 8px; }
+h2 { font-size: 17px; margin: 0 0 16px; }
+p { line-height: 1.55; color: #5f6368; }
+section { border: 1px solid #dadce0; border-radius: 12px; padding: 20px; margin-top: 24px; }
+label { display: block; margin: 14px 0; line-height: 1.5; }
+select { margin-left: 10px; padding: 6px; }
+.saved { min-height: 24px; color: #188038; }
+@media (prefers-color-scheme: dark) { body { color: #e8eaed; background: #202124; } p { color: #bdc1c6; } section { border-color: #5f6368; } }
