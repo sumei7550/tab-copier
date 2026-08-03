@@ -11,31 +11,32 @@
     <div class="header">
       <span class="title" id="title">
         <img src="icons/icon24.png" alt="" class="title-icon" width="24" height="24" />
+        <span class="title-text">Tab Copier</span>
       </span>
-      <button type="button" id="selectAllBtn" class="link-btn"></button>
-      <span class="count" id="countLabel"></span>
+      <button type="button" id="selectAllBtn" class="link-btn">Select all</button>
+      <span class="count" id="countLabel">Selected 0</span>
     </div>
     <div class="toolbar">
-      <label class="format-label" for="formatSelect" id="formatLabel"></label>
+      <label class="format-label" for="formatSelect" id="formatLabel">Format</label>
       <select id="formatSelect" aria-labelledby="formatLabel">
-        <option value="markdown"></option>
-        <option value="text"></option>
-        <option value="urls"></option>
+        <option value="markdown">Markdown links</option>
+        <option value="text">Title + URL</option>
+        <option value="urls">URLs only</option>
       </select>
-      <label class="scope-toggle"><input type="checkbox" id="allWindowsToggle" /> <span id="allWindowsLabel"></span></label>
+      <label class="scope-toggle" hidden><input type="checkbox" id="allWindowsToggle" /> <span id="allWindowsLabel">All windows</span></label>
     </div>
-    <div class="toolbar secondary-toolbar">
-      <label class="format-label" for="sortSelect" id="sortLabel"></label>
+    <div class="toolbar secondary-toolbar" hidden>
+      <label class="format-label" for="sortSelect" id="sortLabel">Arrange</label>
       <select id="sortSelect" aria-labelledby="sortLabel">
-        <option value="tabOrder"></option>
-        <option value="domain"></option>
-        <option value="domainGroup"></option>
+        <option value="tabOrder">Tab order</option>
+        <option value="domain">Sort by domain</option>
+        <option value="domainGroup">Group by domain</option>
       </select>
     </div>
-    <div class="filter-row"><input type="search" id="filterInput" autocomplete="off" /></div>
+    <div class="filter-row"><input type="search" id="filterInput" autocomplete="off" placeholder="Filter tabs..." /></div>
     <div class="tab-list" id="tabList"></div>
     <section class="preview" aria-labelledby="previewHeading">
-      <div class="preview-header"><span id="previewHeading"></span><button type="button" id="refreshPreviewBtn" class="link-btn"></button></div>
+      <div class="preview-header"><span id="previewHeading">Preview</span><button type="button" id="refreshPreviewBtn" class="link-btn">Refresh</button></div>
       <pre id="previewText"></pre>
     </section>
     <div class="footer">
@@ -44,12 +45,12 @@
           <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
           <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
         </svg>
-        <span id="copyBtnText"></span>
-      </button><button id="downloadBtn" class="secondary-btn"></button></div>
+        <span id="copyBtnText">Copy selected</span>
+      </button><button id="downloadBtn" class="secondary-btn" hidden>Download</button></div>
       <div id="toast" class="toast hidden" role="status"></div>
-      <a href="options.html" target="_blank" class="settings-link" id="settingsLink"></a>
+      <a href="options.html" target="_blank" class="settings-link" id="settingsLink">Settings</a>
       <a href="https://ko-fi.com/sumei7550" target="_blank" rel="noopener noreferrer" class="kofi-link">
-        <span id="buyCoffee"></span>
+        <span id="buyCoffee">Buy me a coffee</span>
       </a>
     </div>
   </div>

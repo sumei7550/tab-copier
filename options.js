@@ -1,5 +1,7 @@
 document.addEventListener('DOMContentLoaded', async () => {
   const $ = (id) => document.getElementById(id);
+  const allWindowsOption = $('defaultAllWindows').closest('label');
+  const removeDuplicatesOption = $('removeDuplicates').closest('label');
   const t = (key) => TabCopierI18n.t(key);
   const entitlement = await TabCopierFeatureFlags.load();
   const defaults = { format: 'markdown', allWindows: false, excludePinned: false, removeDuplicates: true, removeTracking: true };
@@ -10,8 +12,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   Object.entries(labels).forEach(([value, key]) => { $('defaultFormat').querySelector(`[value="${value}"]`).textContent = t(key); });
   $('defaultFormat').value = ['markdown', 'text', 'urls'].includes(settings.format) ? settings.format : 'text';
   ['defaultAllWindows', 'excludePinned', 'removeDuplicates', 'removeTracking'].forEach((id) => { $(id).checked = settings[id === 'defaultAllWindows' ? 'allWindows' : id]; });
-  $('defaultAllWindows').disabled = !entitlement.capabilities.allWindows;
-  $('removeDuplicates').disabled = !entitlement.capabilities.deduplicate;
+  allWindowsOption.hidden = true;
+  removeDuplicatesOption.hidden = true;
   if (!entitlement.capabilities.allWindows) $('defaultAllWindows').checked = false;
   if (!entitlement.capabilities.deduplicate) $('removeDuplicates').checked = false;
   const save = async () => { const next = { format: $('defaultFormat').value, allWindows: entitlement.capabilities.allWindows && $('defaultAllWindows').checked, excludePinned: $('excludePinned').checked, removeDuplicates: entitlement.capabilities.deduplicate && $('removeDuplicates').checked, removeTracking: $('removeTracking').checked }; await chrome.storage.local.set(next); $('savedMessage').textContent = t('saved'); setTimeout(() => { $('savedMessage').textContent = ''; }, 1800); };

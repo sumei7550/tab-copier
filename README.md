@@ -9,7 +9,7 @@ Tab Copier is a Chrome extension for copying selected browser tabs as Markdown l
 - Export Markdown links, title + URL text, or URL-only lists to the clipboard
 - Filter tabs, exclude pinned tabs, and remove common tracking parameters
 - Preview the result before copying
-- English, Simplified Chinese, Japanese, Korean, German, French, Spanish, Russian, and Indonesian UI translations
+- English, Simplified Chinese, Traditional Chinese, Japanese, Korean, German, French, Spanish, Russian, Indonesian, Malay, Portuguese (Brazil), and Thai UI translations
 - Language resources are bundled with the extension; switching language does not require a network connection
 
 ## Free and Pro boundary

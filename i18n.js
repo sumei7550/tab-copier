@@ -1,7 +1,12 @@
 const TabCopierI18n = (() => {
   const fallbacks = { proFeature: 'Pro feature reserved for a future plan.' };
   function t(key, substitutions) {
-    const message = chrome.i18n.getMessage(key, substitutions);
+    let message = '';
+    try {
+      message = chrome.i18n.getMessage(key, substitutions);
+    } catch {
+      // Keep the popup usable if the browser i18n API is unavailable during startup.
+    }
     return message || fallbacks[key] || key;
   }
 

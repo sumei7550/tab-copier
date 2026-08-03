@@ -26,6 +26,12 @@ Chrome may restrict access to browser-internal and extension-internal pages. Tho
 
 Productivity
 
+## Privacy policy URL
+
+After pushing this release branch to GitHub, use this public URL in the Chrome Web Store dashboard:
+
+https://github.com/sumei7550/tab-copier/blob/release/1.1.0/privacy.html
+
 ## Asset checklist
 
 - Extension icon: `icons/icon128.png`

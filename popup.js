@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const tabList = $('tabList'); const countLabel = $('countLabel'); const copyBtn = $('copyBtn');
   const downloadBtn = $('downloadBtn'); const toast = $('toast'); const selectAllBtn = $('selectAllBtn');
   const formatSelect = $('formatSelect'); const sortSelect = $('sortSelect'); const allWindowsToggle = $('allWindowsToggle');
+  const scopeToggle = document.querySelector('.scope-toggle'); const secondaryToolbar = document.querySelector('.secondary-toolbar');
   const filterInput = $('filterInput'); const previewText = $('previewText');
   const FALLBACK_FAVICON = 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"><rect width="16" height="16" rx="3" fill="#cccccc"/></svg>');
   const defaults = { format: 'markdown', allWindows: false, excludePinned: false, removeDuplicates: true, removeTracking: true, sort: 'tabOrder' };
@@ -13,16 +14,19 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   function localizeStaticText() {
     document.title = t('extensionName');
-    $('title').textContent = t('extensionName'); $('buyCoffee').textContent = t('buyCoffee');
+    // Keep the compact popup header independent from the longer store/manifest name.
+    $('title').querySelector('.title-text').textContent = 'Tab Copier'; $('buyCoffee').textContent = t('buyCoffee');
     $('formatLabel').textContent = t('format'); $('sortLabel').textContent = t('sortTabs'); $('previewHeading').textContent = t('preview');
     $('refreshPreviewBtn').textContent = t('refreshPreview'); $('allWindowsLabel').textContent = t('allWindows');
     filterInput.placeholder = t('filterTabs'); $('copyBtnText').textContent = t('copySelected'); downloadBtn.textContent = t('download'); $('settingsLink').textContent = t('settings');
     [['markdown','formatMarkdown'],['text','formatText'],['urls','formatUrls']].forEach(([v,k]) => { formatSelect.querySelector(`[value="${v}"]`).textContent = t(k); });
     [['tabOrder','sortTabOrder'],['domain','sortDomain'],['domainGroup','sortDomainGroup']].forEach(([v,k]) => { sortSelect.querySelector(`[value="${v}"]`).textContent = t(k); });
-    allWindowsToggle.disabled = !can('allWindows');
-    downloadBtn.disabled = !can('fileExport');
-    allWindowsToggle.title = downloadBtn.title = !can('allWindows') || !can('fileExport') ? t('proFeature') : '';
-    ['domain', 'domainGroup'].forEach((value) => { sortSelect.querySelector(`[value="${value}"]`).disabled = !can('domainGrouping'); });
+    // Keep the free popup focused on the available workflow. Pro controls are
+    // restored here automatically when a real entitlement is connected.
+    scopeToggle.hidden = true;
+    downloadBtn.hidden = true;
+    secondaryToolbar.hidden = true;
+    ['domain', 'domainGroup'].forEach((value) => { sortSelect.querySelector(`[value="${value}"]`).hidden = !can('domainGrouping'); });
   }
   function isSystemUrl(url) { return /^(chrome|edge|about|devtools|chrome-extension|view-source):/i.test(url); }
   function cleanUrl(raw) { if (!settings.removeTracking) return raw; try { const url = new URL(raw); [...url.searchParams.keys()].filter((key) => /^(utm_|fbclid$|gclid$|mc_[ce]id$)/i.test(key)).forEach((key) => url.searchParams.delete(key)); return url.toString(); } catch { return raw; } }

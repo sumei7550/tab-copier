@@ -1,5 +1,5 @@
 {
   "extensionName": { "message": "Tab Copier – \u532f\u51fa\u5206\u9801\u9023\u7d50" },
-  "extensionDescription": { "message": "\u5c07\u9078\u53d6\u7684\u5206\u9801\u532f\u51fa\u70ba Markdown\u3001\u9023\u7d50\u6216 HTML\uff1b\u96e2\u7dda\u904b\u4f5c\u4e14\u4e0d\u6536\u96c6\u8cc7\u6599\u3002" },
+  "extensionDescription": { "message": "\u5c07\u9078\u53d6\u7684\u5206\u9801\u8907\u88fd\u70ba Markdown\u3001\u6a19\u984c + URL \u6587\u5b57\u6216\u50c5 URL \u6e05\u55ae\uff0c\u4e26\u53ef\u5728\u8907\u88fd\u524d\u9810\u89bd\u3002" },
   "commandOpenPopup": { "message": "\u958b\u555f Tab Copier" }
 }
