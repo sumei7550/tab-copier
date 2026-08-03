@@ -1,43 +1,40 @@
 # Tab Copier
 
-A minimal Chrome extension that copies all open tab titles and URLs with one click, formatted as Markdown links.
+Tab Copier is a Chrome extension for copying selected browser tabs as Markdown links, title + URL text, or URL-only lists. It is designed for research notes, documentation, and sharing links.
 
 ## Features
 
-- 📋 One-click copy of all tabs in the current window
-- ✅ Select which tabs to include (with a Select All / Deselect All toggle for batch copying)
-- 📝 Export Markdown, URLs, title + URL, or HTML links — ready for Notion, Obsidian, documents, and chat
-- 🔎 Filter tabs, copy from all windows, and optionally exclude pinned tabs, duplicate URLs, and tracking parameters
-- ⌨️ Keyboard shortcut support: `Alt+Shift+C` by default (customizable in Chrome shortcuts)
-- 🌍 Localized UI and store metadata: English, Chinese (Simplified/Traditional), Japanese, Korean, Spanish, German, French, Russian, Thai, Malay, Indonesian, and Brazilian Portuguese
-- 🔒 No data collection — everything runs locally in your browser
-- 🪶 Only one permission requested: `tabs`
+- Select individual tabs or all tabs in the current window
+- Copy tabs from the current window (all-window copying is reserved for Pro)
+- Export Markdown links, title + URL text, or URL-only lists to the clipboard
+- Filter tabs, exclude pinned tabs, and remove common tracking parameters
+- Preview the result before copying
+- English, Simplified Chinese, Japanese, Korean, German, French, Spanish, Russian, and Indonesian UI translations
+- Language resources are bundled with the extension; switching language does not require a network connection
 
-## Install (developer mode)
+## Free and Pro boundary
 
-1. Download or clone this repository
-2. Open `chrome://extensions` in Chrome
-3. Enable **Developer mode** (top right)
-4. Click **Load unpacked** and select this folder
-5. Pin the extension and click its icon to open the popup
+The free plan keeps the fast local workflow free: current-window copying, three output formats, basic selection, and no account or cloud sync. Pro capabilities are reserved behind local feature flags for a later release: all-window copying, deduplication, domain grouping, file export, custom templates, tab collections, and Chrome tab-group preservation. See [COMMERCIALIZATION.md](./COMMERCIALIZATION.md) for the product boundary and pricing discussion.
 
-## Project structure
+## Permissions
 
-```
-tab-copier/
-├── manifest.json
-├── popup.html
-├── popup.css
-├── popup.js
-└── icons/
-    ├── icon16.png
-    ├── icon48.png
-    └── icon128.png
-```
+- `tabs`: reads tab titles and URLs to create the export
+- `storage`: saves copy preferences in `chrome.storage.local`
+- `clipboardWrite`: copies generated text to the clipboard
+
+The extension does not read page contents. Browser-internal and extension-internal pages may be shown but cannot be copied when Chrome blocks access to their URLs.
 
 ## Privacy
 
-Tab Copier does not collect or transmit any user data. All tab processing happens locally in the browser using the `chrome.tabs` API to read open tab titles/URLs, and the Clipboard API to copy the generated text. Only copy preferences are stored locally with `chrome.storage.local`; tab titles, URLs, and copied content are never stored.
+Tab processing happens locally in the browser. The extension does not include an account, analytics, cloud sync, AI API, or background server. It does not store tab titles, URLs, or copied content; only copy preferences are saved locally. See [privacy.html](./privacy.html) for the bilingual policy.
+
+## Install in developer mode
+
+1. Download or clone this repository.
+2. Open `chrome://extensions` in Chrome.
+3. Enable **Developer mode**.
+4. Click **Load unpacked** and select the repository folder.
+5. Pin Tab Copier and click its toolbar icon.
 
 ## License
 

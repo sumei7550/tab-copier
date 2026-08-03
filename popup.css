@@ -21,8 +21,10 @@ body {
   margin-bottom: 12px;
 }
 .toolbar { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.secondary-toolbar { margin-top: -4px; }
 .format-label { color: #5f6368; font-size: 12px; }
 #formatSelect { max-width: 120px; padding: 4px; border: 1px solid #dadce0; border-radius: 5px; background: #fff; font-size: 12px; }
+#sortSelect { max-width: 150px; padding: 4px; border: 1px solid #dadce0; border-radius: 5px; background: #fff; font-size: 12px; }
 .scope-toggle { margin-left: auto; font-size: 12px; color: #555; white-space: nowrap; }
 .filter-row { margin-bottom: 8px; }
 #filterInput { width: 100%; padding: 7px 9px; border: 1px solid #dadce0; border-radius: 6px; font: inherit; }
@@ -96,6 +98,11 @@ body {
   color: #1e1e1e;
   font-size: 13px;
 }
+.tab-item { gap: 6px; }
+.tab-item.inaccessible { opacity: .65; }
+.row-copy { margin-left: auto; border: 0; background: transparent; color: #1a73e8; cursor: pointer; font-size: 11px; flex-shrink: 0; }
+.row-copy:disabled { color: #888; cursor: not-allowed; }
+.access-note { color: #a15c00; font-size: 10px; margin-left: auto; white-space: nowrap; }
 .empty-state {
   padding: 24px 8px;
   text-align: center;
@@ -143,6 +150,13 @@ body {
 .hidden {
   display: none;
 }
+.preview { margin-top: 10px; border: 1px solid #ececec; border-radius: 6px; overflow: hidden; }
+.preview-header { display: flex; justify-content: space-between; align-items: center; padding: 5px 8px; color: #5f6368; font-size: 12px; background: #fafafa; }
+.preview pre { max-height: 120px; overflow: auto; padding: 8px; white-space: pre-wrap; overflow-wrap: anywhere; font: 11px/1.4 ui-monospace, monospace; color: #333; }
+.button-row { display: flex; gap: 8px; }
+.button-row .primary-btn { flex: 1; }
+.secondary-btn { border: 1px solid #1a73e8; background: #fff; color: #1a73e8; border-radius: 8px; padding: 0 12px; cursor: pointer; }
+.secondary-btn:disabled, select option:disabled { opacity: .55; cursor: not-allowed; }
 .kofi-link {
   text-align: center;
   font-size: 12px;

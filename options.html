@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -12,7 +12,7 @@
     <p id="pageIntro"></p>
     <section>
       <h2 id="copyDefaultsHeading"></h2>
-      <label><span id="defaultFormatLabel"></span><select id="defaultFormat"><option value="markdown"></option><option value="urls"></option><option value="titleUrl"></option><option value="html"></option></select></label>
+      <label><span id="defaultFormatLabel"></span><select id="defaultFormat"><option value="markdown"></option><option value="text"></option><option value="urls"></option></select></label>
       <label><input type="checkbox" id="defaultAllWindows" /> <span id="defaultAllWindowsLabel"></span></label>
       <label><input type="checkbox" id="excludePinned" /> <span id="excludePinnedLabel"></span></label>
       <label><input type="checkbox" id="removeDuplicates" /> <span id="removeDuplicatesLabel"></span></label>
@@ -22,6 +22,7 @@
     <p id="savedMessage" class="saved" role="status"></p>
   </main>
   <script src="i18n.js"></script>
+  <script src="feature-flags.js"></script>
   <script src="options.js"></script>
 </body>
 </html>

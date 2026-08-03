@@ -1,54 +1,68 @@
-# Chrome Web Store listing kit — Tab Copier 1.1
+# Chrome Web Store listing copy — Free launch
 
-## Product positioning
+## Suggested title
 
-**For researchers, writers, and knowledge workers who need to move a set of browser tabs into notes.** Tab Copier exports selected tabs as clean Markdown, links, or HTML in one local, offline step.
+Tab Copier – Copy Tabs as Markdown
 
-Use the **Workflow & planning** category. Do not use competitor names or claims such as “best” or “fastest”.
+## Short description (under 132 characters)
 
-## English (primary)
+Copy selected tabs as Markdown, plain text, or URLs. Fast, private, and processed locally in your browser.
 
-- **Title:** Tab Copier – Export Tabs to Markdown
-- **Summary (123 chars):** Copy selected tabs as clean Markdown, links, or HTML. Private, offline, and built for research notes.
-- **Detailed description:**
+## English detailed description
 
-Save a research session or share a set of links in seconds. Tab Copier turns the browser tabs you choose into clean text ready for Notion, Obsidian, documents, email, or chat.
+Tab Copier helps you move browser research into notes, documents, chat, and link collections.
 
-Features:
+Select the tabs you want in the current browser window, preview the result, and copy it in the format you need:
 
-- Copy selected tabs from the current window or every open window.
-- Choose Markdown, URL-only, title + URL, or HTML-link output.
-- Filter tabs before copying; optionally exclude pinned tabs and duplicate URLs.
-- Remove common tracking parameters for cleaner shared links.
-- Works locally in your browser. No account, ads, or data collection.
+- Markdown links
+- Plain text with title and URL
+- URL-only lists
 
-The `tabs` permission is used only to read the titles and URLs needed to create the text you copy. Those details are never sent to a server.
+Also included:
 
-## Localized titles and summaries
+- Select individual tabs or select all tabs in the current window
+- Search and filter open tabs
+- Exclude pinned tabs
+- Remove common tracking parameters locally
+- Preview the generated text before copying
+- Keyboard shortcut support through Chrome
+- Localized interface with bundled language resources
 
-| Locale | Title | Summary |
-|---|---|---|
-| 简体中文 | Tab Copier – 一键导出标签页链接 | 将选中的标签页导出为 Markdown、链接或 HTML；离线运行，不收集数据。 |
-| 繁體中文 | Tab Copier – 匯出分頁連結 | 將選取的分頁匯出為 Markdown、連結或 HTML；離線運作且不收集資料。 |
-| 日本語 | Tab Copier – タブをMarkdownへ書き出し | 選択したタブをMarkdown、リンク、HTMLとしてコピー。非公開・オフラインで動作します。 |
-| 한국어 | Tab Copier – 탭을 Markdown으로 내보내기 | 선택한 탭을 Markdown, 링크 또는 HTML로 복사합니다. 비공개, 오프라인 방식입니다. |
-| Español | Tab Copier – Exportar pestañas a Markdown | Copia pestañas seleccionadas como Markdown, enlaces o HTML. Privado y sin conexión. |
-| Deutsch | Tab Copier – Tabs als Markdown exportieren | Kopiert ausgewählte Tabs als Markdown, Links oder HTML. Privat und offline. |
-| Français | Tab Copier – Exporter les onglets en Markdown | Copiez des onglets en Markdown, liens ou HTML. Privé et hors ligne. |
-| Русский | Tab Copier – Экспорт вкладок в Markdown | Копируйте вкладки как Markdown, ссылки или HTML. Конфиденциально и офлайн. |
-| ไทย | Tab Copier – ส่งออกแท็บเป็น Markdown | คัดลอกแท็บที่เลือกเป็น Markdown ลิงก์ หรือ HTML แบบส่วนตัวและออฟไลน์ |
-| Bahasa Melayu | Tab Copier – Eksport tab ke Markdown | Salin tab terpilih sebagai Markdown, pautan atau HTML. Peribadi dan luar talian. |
-| Bahasa Indonesia | Tab Copier – Ekspor tab ke Markdown | Salin tab pilihan sebagai Markdown, tautan, atau HTML. Pribadi dan offline. |
-| Português (Brasil) | Tab Copier – Exportar abas para Markdown | Copie abas como Markdown, links ou HTML. Privado e offline. |
+Tab Copier is free to use and does not require an account, sign-in, cloud sync, or remote server. Tab titles and URLs are processed locally in your browser. The extension does not read page contents or collect browsing history.
 
-## Upload checklist
+## 中文详细描述
 
-1. Upload `promo-tile-440x280.png` as the small promo tile.
-2. Load this extension in Chrome, then capture four real 1280×800 screenshots: format selection; filtering selected tabs; pasted Markdown in a notes app; settings/privacy screen.
-3. In the Store listing language dropdown, fill each locale. The `_locales` folders in this release make the locales selectable.
-4. Fill the privacy practices form: no collection, no sale, no transfer, and local settings only.
-5. Add the GitHub repository as homepage/support URL and publish a concise 1.1 release note.
+Tab Copier 帮助你将浏览器研究资料快速整理到笔记、文档、聊天窗口和链接集合中。
 
-## Suggested release note
+你可以选择当前窗口中的标签页，预览结果，然后复制为以下格式：
 
-Export tabs in Markdown, plain URLs, title + URL, or HTML. Added filtering, all-window copy, duplicate and tracking cleanup, local preferences, a settings page, keyboard shortcut support, and 13 interface/store locales.
+- Markdown 链接
+- 包含标题和 URL 的纯文本
+- 纯 URL 列表
+
+其他功能：
+
+- 单独选择标签页或一键全选当前窗口
+- 搜索和筛选已打开的标签页
+- 排除固定标签页
+- 在本地移除常见追踪参数
+- 复制前预览生成内容
+- 支持通过 Chrome 设置键盘快捷键
+- 内置多语言资源，无需联网切换语言
+
+Tab Copier 免费使用，无需账号、登录、云同步或远程服务器。标签页标题和 URL 只在浏览器本地处理，不读取网页内容，也不收集浏览历史。
+
+## Suggested category
+
+Productivity
+
+## Suggested keywords
+
+tab copier, copy tabs, markdown links, URL list, browser tabs, research notes, link collection, Notion, Obsidian
+
+## Store asset checklist
+
+- Extension icon: `icons/icon128.png`
+- Promotional tile currently available: `store-assets/promo-tile-440x280.png` (440×280)
+- Add at least one Chrome Web Store screenshot showing the popup with selected tabs, preview, and the three free output formats before submission.
+- Keep screenshots focused on the free workflow; do not show disabled Pro controls or mention payment in the listing.

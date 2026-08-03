@@ -1,158 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Privacy Policy - Tab Copier</title>
-<style>
-  * { box-sizing: border-box; }
-  body {
-    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
-    max-width: 680px;
-    margin: 0 auto;
-    padding: 40px 20px 80px;
-    color: #1e1e1e;
-    line-height: 1.7;
-  }
-  .top-bar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 24px;
-  }
-  .brand {
-    font-weight: 600;
-    font-size: 18px;
-    color: #1a73e8;
-  }
-  .lang-switch {
-    display: flex;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    overflow: hidden;
-  }
-  .lang-switch button {
-    border: none;
-    background: #fff;
-    padding: 6px 14px;
-    font-size: 13px;
-    cursor: pointer;
-    color: #555;
-  }
-  .lang-switch button.active {
-    background: #1a73e8;
-    color: #fff;
-  }
-  h1 {
-    font-size: 24px;
-    margin-bottom: 4px;
-  }
-  .meta {
-    color: #888;
-    font-size: 13px;
-    margin-bottom: 28px;
-  }
-  h2 {
-    font-size: 16px;
-    margin-top: 28px;
-    margin-bottom: 6px;
-    color: #1a1a1a;
-  }
-  p, li {
-    font-size: 14px;
-    color: #333;
-  }
-  code {
-    background: #f0f2f5;
-    padding: 1px 6px;
-    border-radius: 4px;
-    font-size: 13px;
-  }
-  a {
-    color: #1a73e8;
-  }
-  .lang-block {
-    display: none;
-  }
-  .lang-block.active {
-    display: block;
-  }
-  footer {
-    margin-top: 48px;
-    font-size: 12px;
-    color: #aaa;
-    border-top: 1px solid #eee;
-    padding-top: 16px;
-  }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Privacy Policy - Tab Copier</title>
+  <style>
+    body { max-width: 680px; margin: 0 auto; padding: 40px 20px 80px; color: #202124; font: 15px/1.7 system-ui, -apple-system, "Segoe UI", sans-serif; }
+    h1 { font-size: 26px; } h2 { margin-top: 28px; font-size: 18px; }
+    .meta { color: #6b7280; } code { padding: 1px 5px; background: #f1f3f4; border-radius: 4px; }
+    a { color: #1a73e8; } .lang { margin-top: 48px; padding-top: 24px; border-top: 1px solid #dadce0; }
+  </style>
 </head>
 <body>
+  <h1>Privacy Policy</h1>
+  <p class="meta">Extension: Tab Copier · Last updated: August 3, 2026</p>
+  <h2>Data collection</h2>
+  <p>Tab Copier does not collect, store, or transmit personal data, browsing history, tab titles, URLs, or copied content.</p>
+  <h2>Local processing</h2>
+  <p>The extension reads tab titles and URLs only to create the text shown in the popup. Processing happens locally in your browser. The free version does not require an account, sign-in, cloud sync, payment, or remote server.</p>
+  <h2>Permissions</h2>
+  <p><code>tabs</code> reads tab titles and URLs for the current-window copy workflow. <code>storage</code> saves copy preferences locally in <code>chrome.storage.local</code>. <code>clipboardWrite</code> copies the generated text to the clipboard.</p>
+  <h2>Third-party services</h2>
+  <p>Tab Copier does not send data to or share data with third-party services. It does not read page contents.</p>
+  <h2>Contact</h2>
+  <p>Privacy questions: <a href="https://github.com/sumei7550/tab-copier/issues" target="_blank" rel="noopener noreferrer">GitHub Issues</a>.</p>
 
-  <div class="top-bar">
-    <span class="brand">📋 Tab Copier</span>
-    <div class="lang-switch">
-      <button id="btn-en" class="active" onclick="setLang('en')">English</button>
-      <button id="btn-zh" onclick="setLang('zh')">中文</button>
-    </div>
-  </div>
-
-  <!-- English -->
-  <div id="lang-en" class="lang-block active">
-    <h1>Privacy Policy</h1>
-    <div class="meta">Extension: Tab Copier &nbsp;·&nbsp; Last updated: July 2026</div>
-
-    <h2>Data Collection</h2>
-    <p>Tab Copier does NOT collect, store, or transmit any user personal data or browsing information.</p>
-
-    <h2>Permissions</h2>
-    <p><code>tabs</code>: Used to read the titles and URLs of all tabs in the current window, solely for generating the copy content shown in the popup. This data never leaves your browser.</p>
-
-    <h2>Third-Party Services</h2>
-    <p>This extension does not share any data with third-party services.</p>
-
-    <h2>Data Storage</h2>
-    <p>Tab Copier stores only your copy preferences (such as output format and cleanup options) in <code>chrome.storage.local</code> on your device. It never stores your tab titles, URLs, or copied content.</p>
-
-    <h2>Contact</h2>
-    <p>For privacy-related questions, please open an issue at:<br />
-      <a href="https://github.com/sumei7550/tab-copier/issues" target="_blank" rel="noopener noreferrer">https://github.com/sumei7550/tab-copier/issues</a>
-    </p>
-  </div>
-
-  <!-- Chinese -->
-  <div id="lang-zh" class="lang-block">
+  <div class="lang" lang="zh-CN">
     <h1>隐私政策</h1>
-    <div class="meta">扩展程序：Tab Copier &nbsp;·&nbsp; 最后更新：2026年7月</div>
-
+    <p class="meta">扩展程序：Tab Copier · 最后更新：2026 年 8 月 3 日</p>
     <h2>数据收集</h2>
-    <p>Tab Copier 不会收集、存储或传输任何用户个人数据或浏览信息。</p>
-
-    <h2>权限用途</h2>
-    <p><code>tabs</code>：仅用于读取当前窗口中所有标签页的标题和 URL，以在弹出窗口中生成复制内容。该数据不会离开你的浏览器。</p>
-
+    <p>Tab Copier 不会收集、存储或传输个人数据、浏览历史、标签页标题、URL 或复制内容。</p>
+    <h2>本地处理</h2>
+    <p>扩展程序只读取标签页标题和 URL，用于生成弹窗中显示的文本。所有处理都在浏览器本地完成。免费版不需要账号、登录、云同步、支付或远程服务器。</p>
+    <h2>权限说明</h2>
+    <p><code>tabs</code> 用于读取当前窗口的标签页标题和 URL。<code>storage</code> 用于将复制偏好保存在本地 <code>chrome.storage.local</code> 中。<code>clipboardWrite</code> 用于将生成的文本复制到剪贴板。</p>
     <h2>第三方服务</h2>
-    <p>本扩展程序不与任何第三方服务共享数据。</p>
-
-    <h2>数据存储</h2>
-    <p>Tab Copier 仅使用设备上的 <code>chrome.storage.local</code> 保存复制偏好（如输出格式和清理选项），不会保存标签页标题、URL 或复制内容。</p>
-
+    <p>Tab Copier 不会向第三方服务发送或分享数据，也不会读取网页内容。</p>
     <h2>联系方式</h2>
-    <p>如有隐私相关问题，请通过以下 GitHub 地址联系：<br />
-      <a href="https://github.com/sumei7550/tab-copier/issues" target="_blank" rel="noopener noreferrer">https://github.com/sumei7550/tab-copier/issues</a>
-    </p>
+    <p>隐私问题请通过 <a href="https://github.com/sumei7550/tab-copier/issues" target="_blank" rel="noopener noreferrer">GitHub Issues</a> 联系。</p>
   </div>
-
-  <footer>Tab Copier &copy; 2026</footer>
-
-  <script>
-    function setLang(lang) {
-      document.getElementById('lang-en').classList.toggle('active', lang === 'en');
-      document.getElementById('lang-zh').classList.toggle('active', lang === 'zh');
-      document.getElementById('btn-en').classList.toggle('active', lang === 'en');
-      document.getElementById('btn-zh').classList.toggle('active', lang === 'zh');
-      document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
-    }
-  </script>
-
 </body>
 </html>

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -9,9 +9,8 @@
 <body>
   <div class="container">
     <div class="header">
-      <span class="title">
+      <span class="title" id="title">
         <img src="icons/icon24.png" alt="" class="title-icon" width="24" height="24" />
-        Tab Copier
       </span>
       <button type="button" id="selectAllBtn" class="link-btn"></button>
       <span class="count" id="countLabel"></span>
@@ -20,30 +19,42 @@
       <label class="format-label" for="formatSelect" id="formatLabel"></label>
       <select id="formatSelect" aria-labelledby="formatLabel">
         <option value="markdown"></option>
+        <option value="text"></option>
         <option value="urls"></option>
-        <option value="titleUrl"></option>
-        <option value="html"></option>
       </select>
       <label class="scope-toggle"><input type="checkbox" id="allWindowsToggle" /> <span id="allWindowsLabel"></span></label>
     </div>
+    <div class="toolbar secondary-toolbar">
+      <label class="format-label" for="sortSelect" id="sortLabel"></label>
+      <select id="sortSelect" aria-labelledby="sortLabel">
+        <option value="tabOrder"></option>
+        <option value="domain"></option>
+        <option value="domainGroup"></option>
+      </select>
+    </div>
     <div class="filter-row"><input type="search" id="filterInput" autocomplete="off" /></div>
     <div class="tab-list" id="tabList"></div>
+    <section class="preview" aria-labelledby="previewHeading">
+      <div class="preview-header"><span id="previewHeading"></span><button type="button" id="refreshPreviewBtn" class="link-btn"></button></div>
+      <pre id="previewText"></pre>
+    </section>
     <div class="footer">
-      <button id="copyBtn" class="primary-btn">
+      <div class="button-row"><button id="copyBtn" class="primary-btn">
         <svg class="btn-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
           <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
         </svg>
         <span id="copyBtnText"></span>
-      </button>
+      </button><button id="downloadBtn" class="secondary-btn"></button></div>
       <div id="toast" class="toast hidden" role="status"></div>
       <a href="options.html" target="_blank" class="settings-link" id="settingsLink"></a>
       <a href="https://ko-fi.com/sumei7550" target="_blank" rel="noopener noreferrer" class="kofi-link">
-        ☕ Buy me a coffee
+        <span id="buyCoffee"></span>
       </a>
     </div>
   </div>
   <script src="i18n.js"></script>
+  <script src="feature-flags.js"></script>
   <script src="popup.js"></script>
 </body>
 </html>
