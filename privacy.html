@@ -13,29 +13,29 @@
 </head>
 <body>
   <h1>Privacy Policy</h1>
-  <p class="meta">Extension: Tab Copier · Last updated: August 3, 2026</p>
+  <p class="meta">Extension: Tab Copier · Last updated: November 17, 2026</p>
   <h2>Data collection</h2>
-  <p>Tab Copier does not collect, store, or transmit personal data, browsing history, tab titles, URLs, or copied content.</p>
+  <p>Tab titles, URLs, page contents, copied text, and filter text are not sent to any server. Tab Copier sends pseudonymous usage events to Mixpanel to measure feature use. Events may include a random identifier, operating system, extension version, interface language, selected output format and Markdown style, feature interactions, and tab counts.</p>
   <h2>Local processing</h2>
-  <p>The extension reads tab titles and URLs only to create the text shown in the popup. Processing happens locally in your browser. The free version does not require an account, sign-in, cloud sync, payment, or remote server.</p>
+  <p>The extension reads tab titles and URLs to create the text shown in the popup. This processing happens locally in your browser. Copy preferences and a random analytics identifier are stored in <code>chrome.storage.local</code>. The extension does not require an account, sign-in, or cloud sync.</p>
   <h2>Permissions</h2>
-  <p><code>tabs</code> reads tab titles and URLs for the current-window copy workflow. <code>storage</code> saves copy preferences locally in <code>chrome.storage.local</code>. <code>clipboardWrite</code> copies the generated text to the clipboard.</p>
+  <p><code>tabs</code> reads tab titles and URLs to create copy text. <code>storage</code> saves copy preferences and the random analytics identifier locally. Host access to <code>api.mixpanel.com</code> sends usage events and the request IP address for country and location inference.</p>
   <h2>Third-party services</h2>
-  <p>Tab Copier does not send data to or share data with third-party services. It does not read page contents.</p>
+  <p>Usage events are sent to Mixpanel, Inc. at <code>https://api.mixpanel.com</code>. The request IP address is used to infer country and location. Mixpanel's privacy policy is available at <a href="https://mixpanel.com/legal/privacy-policy/" target="_blank" rel="noopener noreferrer">Mixpanel Privacy Policy</a>. Tab Copier does not read page contents or send tab titles, URLs, or copied text.</p>
   <h2>Contact</h2>
   <p>Privacy questions: <a href="https://github.com/sumei7550/tab-copier/issues" target="_blank" rel="noopener noreferrer">GitHub Issues</a>.</p>
 
   <div class="lang" lang="zh-CN">
     <h1>隐私政策</h1>
-    <p class="meta">扩展程序：Tab Copier · 最后更新：2026 年 8 月 3 日</p>
+    <p class="meta">扩展程序：Tab Copier · 最后更新：2026 年 11 月 17 日</p>
     <h2>数据收集</h2>
-    <p>Tab Copier 不会收集、存储或传输个人数据、浏览历史、标签页标题、URL 或复制内容。</p>
+    <p>标签页标题、URL、网页内容、复制文本和筛选框文字不会发送到服务器。Tab Copier 会向 Mixpanel 发送带随机标识的使用事件，用于了解功能使用情况。事件可能包含随机标识、操作系统、扩展版本、界面语言、输出格式和 Markdown 样式、功能操作及标签数量。</p>
     <h2>本地处理</h2>
-    <p>扩展程序只读取标签页标题和 URL，用于生成弹窗中显示的文本。所有处理都在浏览器本地完成。免费版不需要账号、登录、云同步、付款或远程服务器。</p>
+    <p>扩展程序读取标签页标题和 URL，以生成弹窗中的复制文本；这些处理在浏览器本地完成。复制偏好和随机统计标识保存在 <code>chrome.storage.local</code>。扩展不需要账号、登录或云同步。</p>
     <h2>权限说明</h2>
-    <p><code>tabs</code> 用于读取当前窗口的标签页标题和 URL；<code>storage</code> 用于将复制偏好保存在本地 <code>chrome.storage.local</code> 中；<code>clipboardWrite</code> 用于将生成的文本复制到剪贴板。</p>
+    <p><code>tabs</code> 用于读取标签页标题和 URL 以生成复制文本；<code>storage</code> 用于在本机保存复制偏好和随机统计标识。对 <code>api.mixpanel.com</code> 的主机访问权限用于发送使用事件和请求 IP，以推断国家及地理位置。</p>
     <h2>第三方服务</h2>
-    <p>Tab Copier 不会向第三方服务发送或分享数据，也不会读取网页内容。</p>
+    <p>使用事件会发送到 Mixpanel, Inc. 的 <code>https://api.mixpanel.com</code>。请求 IP 用于推断国家和地理位置。Mixpanel 隐私政策见 <a href="https://mixpanel.com/legal/privacy-policy/" target="_blank" rel="noopener noreferrer">Mixpanel 隐私政策</a>。Tab Copier 不读取网页内容，也不发送标签标题、URL 或复制文本。</p>
     <h2>联系方式</h2>
     <p>隐私问题请通过 <a href="https://github.com/sumei7550/tab-copier/issues" target="_blank" rel="noopener noreferrer">GitHub Issues</a> 联系。</p>
   </div>
