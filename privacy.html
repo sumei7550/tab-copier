@@ -99,19 +99,22 @@
   <!-- English -->
   <div id="lang-en" class="lang-block active">
     <h1>Privacy Policy</h1>
-    <div class="meta">Extension: Tab Copier &nbsp;·&nbsp; Last updated: July 2026</div>
+    <div class="meta">Extension: Tab Copier &nbsp;·&nbsp; Last updated: November 16, 2026</div>
 
     <h2>Data Collection</h2>
-    <p>Tab Copier does NOT collect, store, or transmit any user personal data or browsing information.</p>
+    <p>Tab Copier does not collect an account, and it does not transmit tab titles, URLs, page content, or the text you copy. That information stays in your browser.</p>
+    <p>The extension sends pseudonymous usage events to Mixpanel so we can see which features are used. Each event can include a random identifier, your operating system, the extension version, your Chrome UI language, and details such as the output format and Markdown list style, whether all windows are included, whether tabs were selected, whether the preview refresh button or support link was clicked, how many tabs were selected or copied, and whether a filter was active. The words you type into the filter are not included. The request IP address is shared with Mixpanel for country and location inference.</p>
 
     <h2>Permissions</h2>
-    <p><code>tabs</code>: Used to read the titles and URLs of all tabs in the current window, solely for generating the copy content shown in the popup. This data never leaves your browser.</p>
+    <p><code>tabs</code>: Used to read the titles and URLs of tabs in order to build the copy text shown in the popup. Those titles and URLs never leave your browser.</p>
+    <p><code>storage</code>: Used to save copy preferences and the random analytics identifier on your device.</p>
+    <p><code>api.mixpanel.com</code> host access: Used only to send the usage events described above.</p>
 
     <h2>Third-Party Services</h2>
-    <p>This extension does not share any data with third-party services.</p>
+    <p>Usage events described above are sent to Mixpanel (Mixpanel, Inc.) at <code>https://api.mixpanel.com</code>. Mixpanel’s privacy policy is at <a href="https://mixpanel.com/legal/privacy-policy/" target="_blank" rel="noopener noreferrer">https://mixpanel.com/legal/privacy-policy/</a>. Tab contents are not shared with Mixpanel or any other service.</p>
 
     <h2>Data Storage</h2>
-    <p>Tab Copier stores only your copy preferences (such as output format and cleanup options) in <code>chrome.storage.local</code> on your device. It never stores your tab titles, URLs, or copied content.</p>
+    <p>Tab Copier stores copy preferences (such as output format and cleanup options) and a random analytics identifier in <code>chrome.storage.local</code> on your device. It never stores your tab titles, URLs, or copied content.</p>
 
     <h2>Contact</h2>
     <p>For privacy-related questions, please open an issue at:<br />
@@ -122,19 +125,22 @@
   <!-- Chinese -->
   <div id="lang-zh" class="lang-block">
     <h1>隐私政策</h1>
-    <div class="meta">扩展程序：Tab Copier &nbsp;·&nbsp; 最后更新：2026年7月</div>
+    <div class="meta">扩展程序：Tab Copier &nbsp;·&nbsp; 最后更新：2026年11月16日</div>
 
     <h2>数据收集</h2>
-    <p>Tab Copier 不会收集、存储或传输任何用户个人数据或浏览信息。</p>
+    <p>Tab Copier 不收集账号，也不会传输标签页标题、URL、页面内容或你复制的文本。这些信息只留在你的浏览器里。</p>
+    <p>扩展会向 Mixpanel 发送带随机标识的使用事件，用来了解功能是否被使用。每条事件可能包含操作系统、扩展版本、Chrome 界面语言，以及输出格式和 Markdown 列表样式、是否启用所有窗口、标签选择操作、是否点击预览刷新按钮或支持链接、选择或复制了多少个标签、筛选框是否有内容等细节。筛选框里输入的文字不会上传。请求会把 IP 地址发送给 Mixpanel，用于推断国家和地理位置。</p>
 
     <h2>权限用途</h2>
-    <p><code>tabs</code>：仅用于读取当前窗口中所有标签页的标题和 URL，以在弹出窗口中生成复制内容。该数据不会离开你的浏览器。</p>
+    <p><code>tabs</code>：用于读取标签页标题和 URL，以便在弹出窗口中生成复制内容。标题和 URL 不会离开你的浏览器。</p>
+    <p><code>storage</code>：用于在本机保存复制偏好和匿名统计用的随机标识。</p>
+    <p><code>api.mixpanel.com</code> 主机访问权限：仅用于发送上述使用事件。</p>
 
     <h2>第三方服务</h2>
-    <p>本扩展程序不与任何第三方服务共享数据。</p>
+    <p>上述使用事件会发送到 Mixpanel（Mixpanel, Inc.）的 <code>https://api.mixpanel.com</code>。Mixpanel 隐私政策见 <a href="https://mixpanel.com/legal/privacy-policy/" target="_blank" rel="noopener noreferrer">https://mixpanel.com/legal/privacy-policy/</a>。标签页内容不会分享给 Mixpanel 或其他服务。</p>
 
     <h2>数据存储</h2>
-    <p>Tab Copier 仅使用设备上的 <code>chrome.storage.local</code> 保存复制偏好（如输出格式和清理选项），不会保存标签页标题、URL 或复制内容。</p>
+    <p>Tab Copier 使用设备上的 <code>chrome.storage.local</code> 保存复制偏好（如输出格式和清理选项）以及一个随机统计标识，不会保存标签页标题、URL 或复制内容。</p>
 
     <h2>联系方式</h2>
     <p>如有隐私相关问题，请通过以下 GitHub 地址联系：<br />

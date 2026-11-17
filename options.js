@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   Object.entries(labels).forEach(([value, key]) => { $('defaultFormat').querySelector(`[value="${value}"]`).textContent = t(key); });
   $('defaultFormat').value = settings.format;
   ['defaultAllWindows', 'excludePinned', 'removeDuplicates', 'removeTracking'].forEach((id) => { $(id).checked = settings[id === 'defaultAllWindows' ? 'allWindows' : id]; });
-  const save = async () => { const next = { format: $('defaultFormat').value, allWindows: $('defaultAllWindows').checked, excludePinned: $('excludePinned').checked, removeDuplicates: $('removeDuplicates').checked, removeTracking: $('removeTracking').checked }; await chrome.storage.local.set(next); $('savedMessage').textContent = t('saved'); setTimeout(() => { $('savedMessage').textContent = ''; }, 1800); };
+  const save = async () => { const next = { format: $('defaultFormat').value, allWindows: $('defaultAllWindows').checked, excludePinned: $('excludePinned').checked, removeDuplicates: $('removeDuplicates').checked, removeTracking: $('removeTracking').checked }; await chrome.storage.local.set(next); TabCopierAnalytics.track('Settings Saved', { format: next.format, all_windows: next.allWindows, exclude_pinned: next.excludePinned, remove_duplicates: next.removeDuplicates, remove_tracking: next.removeTracking }); $('savedMessage').textContent = t('saved'); setTimeout(() => { $('savedMessage').textContent = ''; }, 1800); };
+  TabCopierAnalytics.track('Settings Opened');
   document.querySelectorAll('input, select').forEach((element) => element.addEventListener('change', save));
 });

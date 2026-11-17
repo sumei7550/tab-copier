@@ -1,1 +1,1 @@
-{"extensionName":{"message":"Tab Copier – 匯出分頁連結"},"extensionDescription":{"message":"將選取的分頁匯出為 Markdown、連結或 HTML；離線運作且不收集資料。"},"commandOpenPopup":{"message":"開啟 Tab Copier"}}
+{"extensionName":{"message":"Tab Copier – 匯出分頁連結"},"extensionDescription":{"message":"將選取的分頁複製為 Markdown、連結或 HTML。分頁內容留在本機。"},"commandOpenPopup":{"message":"開啟 Tab Copier"}}

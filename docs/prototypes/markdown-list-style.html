@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tab Copier — Markdown 样式原型</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; width: 420px; color: #202124; background: #f4f6fb; font: 13px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+    .popup { margin: 18px auto; padding: 16px; width: 380px; background: #fff; border: 1px solid #e4e7ee; border-radius: 12px; box-shadow: 0 8px 28px #18284a1a; }
+    .header, .toolbar, .preview-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .header { margin-bottom: 12px; }
+    .title { font-size: 15px; font-weight: 600; }
+    .count { padding: 3px 10px; border-radius: 12px; background: #f0f1f4; color: #555; font-size: 12px; }
+    .toolbar { justify-content: flex-start; margin-bottom: 10px; color: #5f6368; }
+    select { min-height: 30px; padding: 4px 8px; border: 1px solid #dadce0; border-radius: 6px; background: white; color: #202124; }
+    #format { width: 132px; }
+    .scope { margin-left: auto; white-space: nowrap; }
+    .subrow { display: flex; align-items: center; gap: 9px; margin: 0 0 10px; padding: 9px 10px; border: 1px solid #e5e7eb; border-radius: 8px; background: #fafbff; }
+    .subrow label { color: #5f6368; white-space: nowrap; }
+    #style { flex: 1; }
+    .tabs { padding: 4px 0; border-top: 1px solid #ececec; border-bottom: 1px solid #ececec; }
+    .tab { display: flex; align-items: center; gap: 8px; height: 34px; white-space: nowrap; }
+    .check { width: 16px; height: 16px; accent-color: #536dfe; }
+    .favicon { display: grid; place-items: center; width: 16px; height: 16px; color: #4285f4; font-weight: 700; }
+    .preview { margin-top: 10px; border: 1px solid #ececec; border-radius: 7px; overflow: hidden; }
+    .preview-head { padding: 6px 9px; background: #fafafa; color: #5f6368; font-size: 12px; }
+    .preview-head a { color: #536dfe; text-decoration: none; }
+    pre { min-height: 62px; max-height: 94px; overflow: auto; margin: 0; padding: 9px; white-space: pre-wrap; overflow-wrap: anywhere; font: 11px/1.55 ui-monospace, Consolas, monospace; }
+    .copy { width: 100%; margin-top: 11px; padding: 10px; border: 0; border-radius: 8px; background: #536dfe; color: #fff; font-size: 14px; }
+    .foot { margin-top: 9px; text-align: center; color: #777; font-size: 12px; }
+    .note { margin: 0 20px 18px; color: #596273; font-size: 12px; }
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+  <main class="popup">
+    <header class="header"><span class="title">▣ Tab Copier</span><span class="count">Selected 3</span></header>
+    <div class="toolbar"><label for="format">Format</label><select id="format"><option>Markdown</option><option>URLs only</option><option>Title + URL</option><option>HTML links</option></select><label class="scope"><input type="checkbox"> All windows</label></div>
+    <div class="subrow" id="markdownStyle"><label for="style">Markdown style</label><select id="style"><option value="bullet">Unordered list (default)</option><option value="ordered">Ordered list</option><option value="task">Task list</option></select></div>
+    <div class="tabs">
+      <div class="tab"><input class="check" type="checkbox" checked><span class="favicon">G</span><span>Google</span></div>
+      <div class="tab"><input class="check" type="checkbox" checked><span class="favicon">◆</span><span>GitHub</span></div>
+      <div class="tab"><input class="check" type="checkbox" checked><span class="favicon">M</span><span>Mixpanel</span></div>
+    </div>
+    <section class="preview"><div class="preview-head"><span>Preview</span><a href="#" id="refresh">Refresh</a></div><pre id="output"></pre></section>
+    <button class="copy">▢ &nbsp; Copy selected</button>
+    <div class="foot">Settings &nbsp; · &nbsp; ☕ Buy me a coffee</div>
+  </main>
+  <p class="note">原型建议：Markdown 样式仅在 Format = Markdown 时出现；切换样式可即时查看输出，默认保持无序列表。</p>
+  <script>
+    const style = document.querySelector('#style');
+    const format = document.querySelector('#format');
+    const output = document.querySelector('#output');
+    const markdownStyle = document.querySelector('#markdownStyle');
+    const tabs = [['Google', 'https://google.com'], ['GitHub', 'https://github.com'], ['Mixpanel', 'https://mixpanel.com']];
+    function render() {
+      const isMarkdown = format.value === 'Markdown';
+      markdownStyle.hidden = !isMarkdown;
+      output.textContent = tabs.map(([title, url], index) => {
+        const link = `[${title}](${url})`;
+        if (!isMarkdown) return link;
+        if (style.value === 'ordered') return `${index + 1}. ${link}`;
+        if (style.value === 'task') return `- [ ] ${link}`;
+        return `- ${link}`;
+      }).join('\n');
+    }
+    style.addEventListener('change', render);
+    format.addEventListener('change', render);
+    document.querySelector('#refresh').addEventListener('click', event => { event.preventDefault(); render(); });
+    render();
+  </script>
+</body>
+</html>
