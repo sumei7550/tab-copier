@@ -2,28 +2,34 @@
 
 ## Product positioning
 
-**For researchers, writers, and knowledge workers who need to move a set of browser tabs into notes.** Tab Copier copies selected tabs as clean Markdown, links, or HTML. Tab contents stay on the device.
+**For researchers, writers, and knowledge workers who need to move a set of browser tabs into notes.** Tab Copier copies selected tabs as Markdown, plain URLs, title + URL, or HTML links. Markdown supports unordered lists, numbered lists, and task lists. Tab contents stay on the device.
 
 Use the **Workflow & planning** category. Do not use competitor names or claims such as “best” or “fastest”.
 
 ## English (primary)
 
 - **Title:** Tab Copier – Export Tabs to Markdown
-- **Summary:** Copy selected tabs as Markdown, links, or HTML. Tab contents stay on your device.
+- **Summary:** Copy tabs as Markdown bullets, numbered or task lists, URLs, title + URL, or HTML links.
 - **Detailed description:**
 
-Save a research session or share a set of links in seconds. Tab Copier turns the browser tabs you choose into clean text ready for Notion, Obsidian, documents, email, or chat.
+Save a research session or share a set of links in seconds. Tab Copier turns selected tabs from your current window or all open windows into clean text ready for notes, documents, email, or chat.
 
 Features:
 
 - Copy selected tabs from the current window or every open window.
-- Choose Markdown, URL-only, title + URL, or HTML-link output.
+- Choose Markdown links, URL-only, title + URL, or HTML-link output.
+- Choose an unordered list, numbered list, or unchecked task list for Markdown output. The default is an unordered list.
+- Select individual tabs or select all eligible tabs in the chosen window scope.
 - Filter tabs before copying; optionally exclude pinned tabs and duplicate URLs.
 - Remove common tracking parameters for cleaner shared links.
+- Preview the selected output before copying.
+- Copy one tab or multiple selected tabs.
+- Open the popup with a customizable Chrome keyboard shortcut.
+- Use the bundled interface translations offline.
 - No account or ads. Tab titles, URLs, and copied text stay on your device.
 - Pseudonymous usage events, including operating system and basic feature interactions, are sent to Mixpanel. The request IP address is used to infer country and location. Filter text and tab contents are not sent.
 
-The `tabs` permission is used only to read the titles and URLs needed to create the text you copy. Those details are never sent to a server.
+The `tabs` permission is used only to read the titles and URLs needed to create the text you copy. Those details are never sent to a server. Browser-internal and extension pages are excluded because Chrome restricts access to them.
 The `storage` permission keeps copy preferences and a random analytics identifier on the device. Access to `api.mixpanel.com` is used only for the usage events described above, including IP-based country and location inference.
 
 ## Localized titles and summaries
@@ -53,4 +59,4 @@ The `storage` permission keeps copy preferences and a random analytics identifie
 
 ## Suggested release note
 
-Sends pseudonymous usage events to Mixpanel, including operating system and IP-based location inference. Tab titles, URLs, copied text, and filter text stay on the device.
+Adds unordered, numbered, and task-list Markdown output styles. Sends pseudonymous usage events to Mixpanel, including operating system and IP-based location inference. Tab titles, URLs, copied text, and filter text stay on the device.
