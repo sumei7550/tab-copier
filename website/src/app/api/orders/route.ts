@@ -9,6 +9,13 @@ export const POST = route(async req => {
   if (!isPlan(plan)) throw new ApiError('INVALID_PLAN');
   const order = await rpc('reserve_order', { p_purchase: session.id, p_website: hash(session.secret), p_plan: plan, p_amount: plans[plan].cents });
   if (order.status !== 'created') throw new ApiError('ORDER_ALREADY_PROCESSED', 409);
+  if(order.provider_order_id){
+    const existing=await paypal(`/v2/checkout/orders/${encodeURIComponent(order.provider_order_id)}`);
+    if(['APPROVED','COMPLETED'].includes(existing.status))return {orderId:order.id,approvalUrl:`${appUrl()}/payment/return`};
+    const link=existing.links?.find((x:any)=>['payer-action','approve'].includes(x.rel))?.href;
+    if(!link||new URL(link).hostname!=='www.sandbox.paypal.com')throw new ApiError('PAYMENT_REQUIRES_REVIEW',409);
+    return {orderId:order.id,approvalUrl:link};
+  }
   // Stable idempotency key makes a lost create response safely retryable.
   const created = await paypal('/v2/checkout/orders', 'POST', {
     intent: 'CAPTURE', purchase_units: [{ custom_id: order.id, payee: { merchant_id: env('PAYPAL_MERCHANT_ID') }, amount: { currency_code: 'USD', value: price(plan) }, description: `Tab Copier Pro — ${plans[plan].name}` }],

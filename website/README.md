@@ -22,7 +22,7 @@ Copy-Item .env.example .env.local
 npm run dev
 ```
 
-1. 新建独立 Supabase 测试项目，按顺序检查并执行 supabase/migrations/001_sandbox.sql 和 002_manual_recovery.sql。不能在已有生产库盲目执行；迁移已通过本地 PostgreSQL/WASM 验证，但尚未在远程 Supabase 执行。
+1. 新建独立 Supabase 测试项目，按顺序检查并执行 supabase/migrations/001_sandbox.sql、002_manual_recovery.sql 和 003_resume_checkout.sql。已经执行过前两份的数据库只需执行 003；它保留现有订单与授权，增加继续未完成购买所需的凭证更新逻辑。迁移已通过本地 PostgreSQL/WASM 验证，远程执行需在 Supabase SQL Editor 完成。
 2. 在 .env.local 配置沙盒应用 Client ID/Secret、沙盒商户 ID、Webhook ID、Supabase URL/服务端密钥。真实卖家邮箱不能替代这些值，沙盒卖家与正式个人卖家是不同环境。
 3. 执行 `node scripts/create-sandbox-keys.mjs` 生成本地 Ed25519 密钥和派生密钥。工具仅写入未追踪的 .env.local，拒绝覆盖已有密钥；sandbox-public-key.pem 供调试扩展使用。不要把私钥放调试扩展或 NEXT_PUBLIC_ 变量。设置 ENTITLEMENT_KEY_ID=sandbox-v1。
 4. Webhook 配置可从公网访问的沙盒 Vercel URL，订阅 PAYMENT.CAPTURE.COMPLETED / REFUNDED / REVERSED，APP_URL 与部署 origin 一致。localhost 本身不能接收 PayPal 通知。

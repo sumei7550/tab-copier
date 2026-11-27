@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   $('filterInput').oninput=render;$('refreshPreviewBtn').onclick=()=>{render();track('Preview Refresh Clicked');};
   $('selectAllBtn').onclick=()=>{const v=visible(),all=v.every(tab=>selected.has(tab.id));v.forEach(tab=>all?selected.delete(tab.id):selected.add(tab.id));render();track('Tab Selection Bulk Changed',{action:all?'deselect_all':'select_all'});};
   $('upgradeBtn').onclick=dialogs.upgrade;$('contactBtn').onclick=dialogs.contact;
-  $('checkPurchaseBtn').onclick=async()=>{try{await permission();const result=await send('checkPurchase');await sync();render();toast(label(result.status==='active'?'active':'pending'));}catch{toast(label('serviceError'),true);}};
+  $('checkPurchaseBtn').onclick=async()=>{const button=$('checkPurchaseBtn');if(button.disabled)return;button.disabled=true;button.textContent=chrome.i18n.getUILanguage().startsWith('zh')?'正在检查…':'Checking…';try{await permission();const result=await send('checkPurchase');await sync();render();toast(result.status==='not_created'?(chrome.i18n.getUILanguage().startsWith('zh')?'尚未开始购买，可点击查看 Pro 选择套餐。':'No purchase started. View Pro to choose a plan.'):label(result.status==='active'?'active':'pending'));}catch{toast(label('serviceError'),true);}finally{button.disabled=false;button.textContent=label('check');}};
   $('coffeeLink').onclick=()=>track('Coffee Link Clicked',{destination:'ko-fi'});
   $('copyBtn').onclick=async()=>{
     copying=true;render();let prepared,written=false;

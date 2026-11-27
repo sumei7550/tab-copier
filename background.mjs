@@ -1,14 +1,17 @@
 import { config } from './extension/config.mjs';
 import { defaults, rights, quotaState, localDay, reserveCopy, commitCopy, outputModel } from './extension/core.mjs';
 import { verifyEntitlement } from './extension/verify.mjs';
+import { createPurchaseFlow } from './extension/purchase.mjs';
 let queue = Promise.resolve();
+let checkFlight,refreshFlight;
+let initFlight;
 const serial = fn => { const run = queue.then(fn); queue = run.catch(() => {}); return run; };
 async function api(path, data, credential) {
   const response = await fetch(config.apiBase + path, { method: 'POST', headers: { 'Content-Type': 'application/json', ...(credential ? { Authorization: 'Bearer ' + credential } : {}) }, body: JSON.stringify(data), signal: AbortSignal.timeout(20_000) });
   const result = await response.json();
   if (!response.ok) throw new Error(result.error || 'SERVICE_UNAVAILABLE'); return result;
 }
-async function initialize() {
+async function initializeStorage() {
   const s = await chrome.storage.local.get(null), update = {};
   if (!s.installationId) update.installationId = crypto.randomUUID();
   if (!s.schema13) {
@@ -17,6 +20,7 @@ async function initialize() {
   }
   if (Object.keys(update).length) await chrome.storage.local.set(update);
 }
+function initialize(){if(!initFlight)initFlight=initializeStorage().finally(()=>{initFlight=undefined;});return initFlight;}
 async function verify(envelope) {
   if (!config.publicKey) throw new Error('PAYMENT_NOT_CONFIGURED');
   const claims = await verifyEntitlement(envelope, config.publicKey);
@@ -41,7 +45,7 @@ async function state(refresh = false) {
   const quota = quotaState(s.copyQuota, localDay(), Date.now());
   return { access, claims, networkIssue, remaining: Math.max(0, 3 - quota.used - quota.leases.length), settings: { ...defaults, ...Object.fromEntries(Object.keys(defaults).map(k => [k, s[k] ?? defaults[k]])) }, supportId: 'TC-' + s.installationId, paymentConfigured: !!config.publicKey };
 }
-async function checkPurchase() {
+async function performPurchaseCheck() {
   const s = await chrome.storage.local.get(null);
   if (!s.purchaseId || !s.pollToken) return { status: 'not_created' };
   const order = await api(`/api/purchases/${s.purchaseId}/status`, {}, s.pollToken);
@@ -51,27 +55,26 @@ async function checkPurchase() {
   await chrome.storage.local.set({ refreshToken: r.refreshToken, entitlement: r.entitlement, lastLicenseCheck: Date.now() });
   await chrome.alarms.clear('purchase-check'); return { status: 'active' };
 }
+function checkPurchase(){if(!checkFlight)checkFlight=performPurchaseCheck().finally(()=>{checkFlight=undefined;});return checkFlight;}
+const buy=createPurchaseFlow({
+  configured:()=>!!config.publicKey,
+  get:async()=>{const s=await chrome.storage.local.get(null);return {...s,active:!!(await state()).claims};},
+  set:values=>chrome.storage.local.set(values),api,
+  open:url=>chrome.tabs.create({url}),activate:checkPurchase,
+  schedule:async()=>{await chrome.storage.local.set({purchaseStartedAt:Date.now()});await chrome.alarms.create('purchase-check',{delayInMinutes:0.5,periodInMinutes:0.5});},
+});
+function refreshInBackground(){if(!refreshFlight)refreshFlight=state(true).catch(()=>{}).finally(()=>{refreshFlight=undefined;});}
 async function handle(message) {
   await initialize();
   if (message.type === 'state') {
     const s = await chrome.storage.local.get(['purchaseId', 'entitlement', 'lastLicenseCheck']);
-    if (s.purchaseId && !s.entitlement) { try { await checkPurchase(); } catch { /* Keep pending credentials. */ } }
-    return state(!s.lastLicenseCheck || Date.now() - s.lastLicenseCheck > 12 * 3_600_000);
+    const cached=await state();
+    if(s.purchaseId&&!s.entitlement)void checkPurchase().catch(()=>{});
+    if(!s.lastLicenseCheck||Date.now()-s.lastLicenseCheck>12*3_600_000)refreshInBackground();
+    return cached;
   }
   if (message.type === 'buy') {
-    if (!config.publicKey) throw new Error('PAYMENT_NOT_CONFIGURED');
-    let s = await chrome.storage.local.get(null);
-    if (s.refreshToken && (await state()).claims) throw new Error('ALREADY_ACTIVE');
-    if (s.purchaseId && s.pollToken && !s.refreshToken) {
-      const pending = await checkPurchase();
-      if (pending.status === 'active') return { status: 'active' };
-      throw new Error('PURCHASE_PENDING');
-    }
-    const p = await api('/api/purchases', { installationId: s.installationId });
-    await chrome.storage.local.set({ purchaseId: p.purchaseId, pollToken: p.pollToken, purchaseStartedAt: Date.now() });
-    await chrome.tabs.create({ url: p.checkoutUrl });
-    await chrome.alarms.create('purchase-check', { delayInMinutes: 0.5, periodInMinutes: 0.5 });
-    return { status: 'pending' };
+    return buy();
   }
   if (message.type === 'checkPurchase') return checkPurchase();
   if (message.type === 'restore') {
@@ -116,10 +119,11 @@ chrome.runtime.onInstalled.addListener(details => { void serial(async () => {
 }); });
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (sender.id !== chrome.runtime.id || !sender.url?.startsWith(chrome.runtime.getURL(''))) return false;
-  serial(() => handle(message)).then(result => sendResponse({ ok: true, result }), e => sendResponse({ ok: false, error: e.message })); return true;
+  const localCritical=['prepareCopy','commitCopy','releaseCopy'];
+  (localCritical.includes(message.type)?serial(()=>handle(message)):queue.then(()=>handle(message))).then(result => sendResponse({ ok: true, result }), e => sendResponse({ ok: false, error: e.message })); return true;
 });
-chrome.alarms.onAlarm.addListener(alarm => { if (alarm.name !== 'purchase-check') return; void serial(async () => {
+chrome.alarms.onAlarm.addListener(alarm => { if (alarm.name !== 'purchase-check') return; void (async () => {
   const s = await chrome.storage.local.get('purchaseStartedAt');
   if (!s.purchaseStartedAt || Date.now() - s.purchaseStartedAt > 600_000) return chrome.alarms.clear('purchase-check');
   try { await checkPurchase(); } catch { /* Limited retry window; popup provides manual retry. */ }
-}); });
+})(); });

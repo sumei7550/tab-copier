@@ -34,3 +34,15 @@ test('upgrade-only provisional legacy policy preserves originals without unlocki
 test('unconfigured payments fail closed without opening external checkout',async()=>{
   data={};const r=await send('buy');assert.equal(r.ok,false);assert.equal(r.error,'PAYMENT_NOT_CONFIGURED');
 });
+
+test('slow payment polling never blocks cached state or local copy actions',async()=>{
+  const original=globalThis.fetch;let finish:any;
+  globalThis.fetch=(()=>new Promise(resolve=>{finish=()=>resolve({ok:true,json:async()=>({status:'created'})});})) as any;
+  data={purchaseId:'pending',pollToken:'private'};
+  try{
+    const result=await Promise.race([send('state'),new Promise((_,reject)=>setTimeout(()=>reject(Error('state blocked on network')),500))]) as any;
+    assert.equal(result.ok,true);
+    const copy=await send('prepareCopy',{tabs,scope:'window'});assert.equal(copy.ok,true);
+    await send('releaseCopy',{operation:copy.result.operation});
+  }finally{finish?.();await new Promise(resolve=>setTimeout(resolve,0));globalThis.fetch=original;}
+});

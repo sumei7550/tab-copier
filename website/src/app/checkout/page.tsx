@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { plans, type Plan, price } from '@/lib/plans';
 export default function Checkout() {
   const [ready, setReady] = useState(false), [busy, setBusy] = useState(false), [message, setMessage] = useState('正在检查购买会话…');
+  const [boundPlan,setBoundPlan]=useState<Plan|null>(null);
   const initialization = useRef<Promise<void> | null>(null);
   useEffect(() => {
     let disposed = false;
@@ -15,6 +16,9 @@ export default function Checkout() {
       }
       const r = await fetch('/api/checkout/status', { cache: 'no-store' });
       if (!r.ok) throw new Error('购买会话不可用，请回插件重新开始，或检查沙盒配置。');
+      const status=await r.json();
+      if(status.status==='paid'){location.replace('/payment/return');return;}
+      if(status.plan&&Object.hasOwn(plans,status.plan))setBoundPlan(status.plan);
     };
     // React strict-mode repeats effects in development. Consume the one-time ticket once.
     initialization.current ??= initialize();
@@ -30,5 +34,5 @@ export default function Checkout() {
       location.assign(result.approvalUrl);
     } catch (e) { setMessage(e instanceof Error ? e.message : '请求失败，请重试。'); setBusy(false); }
   }
-  return <><h1>选择 Pro 使用时长</h1><p>不限次数复制、按标签组复制、去重及 Markdown 列表样式。</p><div role="status" className="status">{message}</div><div className="plans">{(Object.keys(plans) as Plan[]).map(p => <article key={p}><h2>{plans[p].name}</h2><div className="price">${price(p)} <small>USD</small></div><p>{p === 'lifetime' ? '一次性购买，无套餐到期时间。' : `首次自动激活起 ${p === 'trial' ? '72 小时' : '30 天'}，不自动续费。`}</p>{p === 'trial' && <p>同一可验证付款方仅限一次体验。</p>}<button disabled={!ready || busy} onClick={() => buy(p)}>使用沙盒付款</button></article>)}</div><small>完成付款后返回插件，点击检查结果即可自动激活；无需输入激活码。</small></>;
+  return <><h1>{boundPlan?'继续未完成的购买':'选择 Pro 使用时长'}</h1><p>不限次数复制、按标签组复制、去重及 Markdown 列表样式。</p><div role="status" className="status">{message}</div>{boundPlan&&<p>已保留原订单，请继续原套餐，不会另建付款订单。</p>}<div className="plans">{(Object.keys(plans) as Plan[]).map(p => <article key={p}><h2>{plans[p].name}</h2><div className="price">${price(p)} <small>USD</small></div><p>{p === 'lifetime' ? '一次性购买，无套餐到期时间。' : `首次自动激活起 ${p === 'trial' ? '72 小时' : '30 天'}，不自动续费。`}</p>{p === 'trial' && <p>同一可验证付款方仅限一次体验。</p>}<button disabled={!ready || busy || (!!boundPlan&&boundPlan!==p)} onClick={() => buy(p)}>{busy?'正在打开…':boundPlan===p?'继续沙盒付款':'使用沙盒付款'}</button></article>)}</div><small>完成付款后返回插件，点击检查结果即可自动激活；无需输入激活码。</small></>;
 }

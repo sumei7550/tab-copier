@@ -10,11 +10,23 @@ import { pgcrypto } from '@electric-sql/pglite/contrib/pgcrypto';
 const db = new PGlite({ extensions: { pgcrypto } });
 before(async () => {
   await db.exec('create role anon; create role authenticated; create role service_role;');
-  for (const file of ['001_sandbox.sql', '002_manual_recovery.sql']) {
+  for (const file of ['001_sandbox.sql', '002_manual_recovery.sql', '003_resume_checkout.sql']) {
     await db.exec(await readFile(new URL('../supabase/migrations/' + file, import.meta.url), 'utf8'));
   }
 });
 after(async () => { await db.close(); });
+test('resume renews a single-use ticket while preserving the original order and poll credentials',async()=>{
+  const s=await seed();
+  const original=await db.query<{provider_order_id:string}>('select provider_order_id from orders where id=$1',[s.order.id]);
+  await db.query("update purchase_sessions set created_at=now()-interval '2 days',ticket_created_at=now()-interval '2 days' where id=$1",[s.purchase]);
+  await assert.rejects(call('resume_checkout',[s.purchase,'wrong','new-ticket']),/UNAUTHORIZED/);
+  await call('resume_checkout',[s.purchase,s.poll,'new-ticket']);
+  assert.equal(await call('exchange_checkout',['new-ticket','new-website']),s.purchase);
+  await assert.rejects(call('exchange_checkout',['new-ticket','new-website']),/UNAUTHORIZED/);
+  const order=await call('reserve_order',[s.purchase,'new-website','month',499]);
+  assert.equal(order.id,s.order.id);assert.equal(order.provider_order_id,original.rows[0].provider_order_id);
+  await paid(s);assert.equal((await call('resume_checkout',[s.purchase,s.poll,'unused'])).status,'paid');
+});
 async function call(name: string, params: unknown[]) {
   const r = await db.query<{ result: any }>(`select ${name}(${params.map((_, i) => '$' + (i + 1)).join(',')}) as result`, params);
   return r.rows[0].result;
