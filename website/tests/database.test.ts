@@ -10,7 +10,7 @@ import { pgcrypto } from '@electric-sql/pglite/contrib/pgcrypto';
 const db = new PGlite({ extensions: { pgcrypto } });
 before(async () => {
   await db.exec('create role anon; create role authenticated; create role service_role;');
-  for (const file of ['001_sandbox.sql', '002_manual_recovery.sql', '003_resume_checkout.sql']) {
+  for (const file of ['001_sandbox.sql', '002_manual_recovery.sql', '003_resume_checkout.sql','004_purchase_contact.sql']) {
     await db.exec(await readFile(new URL('../supabase/migrations/' + file, import.meta.url), 'utf8'));
   }
 });
@@ -108,5 +108,19 @@ test('anonymous clients cannot read orders or execute operator recovery RPCs', a
   try {
     await assert.rejects(db.query('select * from orders'), /permission denied/);
     await assert.rejects(call('issue_recovery', [randomUUID(), randomUUID(), 'x', 'x']), /permission denied/);
+    await assert.rejects(call('reserve_order',[randomUUID(),'x','trial',99,'buyer@example.com']),/permission denied/);
   } finally { await db.exec('reset role'); }
+});
+
+test('checkout stores contact email atomically and retries cannot replace the original address',async()=>{
+  const installation=randomUUID(),purchase=randomUUID(),website=randomUUID();
+  await db.query('insert into purchase_sessions(id,installation_id,poll_hash,ticket_hash,website_hash,ticket_used_at) values($1,$2,$3,$4,$5,now())',[purchase,installation,randomUUID(),randomUUID(),website]);
+  await assert.rejects(call('reserve_order',[purchase,website,'trial',99,'invalid']),/INVALID_PURCHASE_EMAIL/);
+  const order=await call('reserve_order',[purchase,website,'trial',99,'Buyer@Example.com']);
+  assert.equal(order.purchase_email,'buyer@example.com');
+  assert.equal((await call('reserve_order',[purchase,website,'trial',99,'buyer@example.com'])).id,order.id);
+  await assert.rejects(call('reserve_order',[purchase,website,'trial',99,'other@example.com']),/PURCHASE_EMAIL_LOCKED/);
+  await assert.rejects(call('reserve_order',[purchase,'wrong','trial',99,'buyer@example.com']),/UNAUTHORIZED/);
+  const previous=await seed();
+  const result=await db.query<{purchase_email:string|null}>('select purchase_email from orders where id=$1',[previous.order.id]);assert.equal(result.rows[0].purchase_email,null);
 });

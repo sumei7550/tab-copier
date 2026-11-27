@@ -1,13 +1,15 @@
 import { checkout } from '@/lib/checkout';
 import { isPlan, plans, price } from '@/lib/plans';
 import { paypal } from '@/lib/paypal';
+import { purchaseEmail } from '@/lib/purchase-contact';
 import { ApiError, appUrl, body, db, hash, rateLimit, route, rpc, websiteOrigin, env } from '@/lib/server';
 export const runtime = 'nodejs';
 export const POST = route(async req => {
   websiteOrigin(req); await rateLimit(req, 'order', 10);
-  const session = await checkout(req), { plan } = await body(req);
+  const session = await checkout(req), { plan,email } = await body(req);
   if (!isPlan(plan)) throw new ApiError('INVALID_PLAN');
-  const order = await rpc('reserve_order', { p_purchase: session.id, p_website: hash(session.secret), p_plan: plan, p_amount: plans[plan].cents });
+  let contact;try{contact=purchaseEmail(email);}catch{throw new ApiError('INVALID_PURCHASE_EMAIL');}
+  const order = await rpc('reserve_order', { p_purchase: session.id, p_website: hash(session.secret), p_plan: plan, p_amount: plans[plan].cents,p_email:contact });
   if (order.status !== 'created') throw new ApiError('ORDER_ALREADY_PROCESSED', 409);
   if(order.provider_order_id){
     const existing=await paypal(`/v2/checkout/orders/${encodeURIComponent(order.provider_order_id)}`);

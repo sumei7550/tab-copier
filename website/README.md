@@ -22,7 +22,7 @@ Copy-Item .env.example .env.local
 npm run dev
 ```
 
-1. 新建独立 Supabase 测试项目，按顺序检查并执行 supabase/migrations/001_sandbox.sql、002_manual_recovery.sql 和 003_resume_checkout.sql。已经执行过前两份的数据库只需执行 003；它保留现有订单与授权，增加继续未完成购买所需的凭证更新逻辑。迁移已通过本地 PostgreSQL/WASM 验证，远程执行需在 Supabase SQL Editor 完成。
+1. 新建独立 Supabase 测试项目，按顺序检查并执行 supabase/migrations/001_sandbox.sql、002_manual_recovery.sql、003_resume_checkout.sql 和 004_purchase_contact.sql。已执行过 001–003 的数据库只执行 004；保留现有订单与授权。迁移已通过本地 PostgreSQL/WASM 验证，远程执行需在 Supabase SQL Editor 完成。
 2. 在 .env.local 配置沙盒应用 Client ID/Secret、沙盒商户 ID、Webhook ID、Supabase URL/服务端密钥。真实卖家邮箱不能替代这些值，沙盒卖家与正式个人卖家是不同环境。
 3. 执行 `node scripts/create-sandbox-keys.mjs` 生成本地 Ed25519 密钥和派生密钥。工具仅写入未追踪的 .env.local，拒绝覆盖已有密钥；sandbox-public-key.pem 供调试扩展使用。不要把私钥放调试扩展或 NEXT_PUBLIC_ 变量。设置 ENTITLEMENT_KEY_ID=sandbox-v1。
 4. Webhook 配置可从公网访问的沙盒 Vercel URL，订阅 PAYMENT.CAPTURE.COMPLETED / REFUNDED / REVERSED，APP_URL 与部署 origin 一致。localhost 本身不能接收 PayPal 通知。
@@ -42,6 +42,8 @@ npm run dev
 
 ## 人工恢复操作（沙盒）
 
+推荐使用受管理员验证保护的 `/admin/recovery` 页面，直接使用 Vercel 已有服务端配置。首次只需执行 `004_purchase_contact.sql`，生成并配置 `ADMIN_PASSWORD_HASH` 后重新部署；详细步骤见 `../docs/1.3/ADMIN_RECOVERY.md`。下面的本机命令工具仍保留，适用于已配置本地服务端环境的操作员，不再是必经流程。
+
 1. 用户在调试扩展点击“恢复购买”，系统内部准备恢复，然后自行发邮件至 sumei7550@outlook.com；插件不发自动邮件，不提交邮箱给恢复接口。
 2. 管理员人工核实支付归属，不能只看邮箱/交易号/截图。邮件自动带支持序列号；取得该序列号、实际 capture ID，填写不含私人信息的操作备注。
 3. 在受信任本机的 website/ 目录使用服务端沙盒配置运行：
@@ -54,6 +56,8 @@ node --env-file=.env.local --experimental-strip-types scripts/issue-recovery.mjs
 
 4. 用户打开链接并点击“确认恢复”，再到原申请的插件点击“完成恢复”。单独 GET/邮件预览不会确认。只有拥有该恢复请求本地秘密的插件能兑换；确认后最长 24 小时内可兑换，已兑换的响应丢失可在 1 小时内幂等重取。
 5. 新设备激活与撤销旧设备在同一事务内完成；不重置已有 first_activated_at/expires_at。无效/过期链接或授权需人工回复，不能重新开启已退款授权。
+
+付款前填写购买联系邮箱，新订单保存至 `orders.purchase_email`；历史订单无邮箱仍可恢复。邮箱未经验证，不作为购买归属证明，不自动发邮件。上线前必须执行 004 迁移，管理员页面与购买页均依赖该字段。
 
 检查本地配置是否齐全（不输出密钥、不连接外部服务）：
 

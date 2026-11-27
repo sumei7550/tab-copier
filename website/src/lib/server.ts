@@ -26,7 +26,7 @@ export async function rpc(name: string, args: Record<string, unknown>) {
   const { data, error } = await db().rpc(name, args);
   if (error) {
     const code = error.message;
-    if (['UNAUTHORIZED', 'EXPIRED', 'NOT_PAID', 'REVOKED', 'TRIAL_USED', 'DEVICE_LIMIT', 'RECOVERY_PENDING', 'RECOVERY_USED'].includes(code)) throw new ApiError(code, code === 'UNAUTHORIZED' ? 401 : 409);
+    if (['UNAUTHORIZED', 'EXPIRED', 'NOT_PAID', 'REVOKED', 'TRIAL_USED', 'DEVICE_LIMIT', 'RECOVERY_PENDING', 'RECOVERY_USED','INVALID_PURCHASE_EMAIL','PURCHASE_EMAIL_LOCKED'].includes(code)) throw new ApiError(code, code === 'UNAUTHORIZED' ? 401 : 409);
     throw new ApiError('STORAGE_UNAVAILABLE', 503);
   }
   return data;
