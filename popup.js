@@ -1,181 +1,72 @@
+import { effectiveSettings, outputModel, usableUrl } from './extension/core.mjs';
+import { label } from './extension/labels.mjs';
+import { send, permission, bindDialogs } from './extension/client.mjs';
+
 document.addEventListener('DOMContentLoaded', async () => {
-  const $ = (id) => document.getElementById(id);
-  const tabList = $('tabList');
-  const countLabel = $('countLabel');
-  const copyBtn = $('copyBtn');
-  const toast = $('toast');
-  const selectAllBtn = $('selectAllBtn');
-  const formatSelect = $('formatSelect');
-  const markdownStyleSelect = $('markdownStyleSelect');
-  const markdownStyleRow = $('markdownStyleRow');
-  const allWindowsToggle = $('allWindowsToggle');
-  const filterInput = $('filterInput');
-  const previewText = $('previewText');
-  const FALLBACK_FAVICON = 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"><rect width="16" height="16" rx="3" fill="#cccccc"/></svg>');
-  const defaults = { format: 'markdown', markdownStyle: 'bullet', allWindows: false, excludePinned: false, removeDuplicates: true, removeTracking: true };
-  let settings = { ...defaults };
-  let tabsData = [];
-  let selectedIds = new Set();
-  let toastTimer;
-  const t = (key, substitutions) => TabCopierI18n.t(key, substitutions);
-
-  function localizeStaticText() {
-    $('formatLabel').textContent = t('format');
-    $('allWindowsLabel').textContent = t('allWindows');
-    filterInput.placeholder = t('filterTabs');
-    $('copyBtnText').textContent = t('copySelected');
-    $('settingsLink').textContent = t('settings');
-    $('previewHeading').textContent = t('preview');
-    $('refreshPreviewBtn').textContent = t('refreshPreview');
-    $('markdownStyleLabel').textContent = t('markdownStyle');
-    const styleLabels = { bullet: 'markdownStyleBullet', ordered: 'markdownStyleOrdered', task: 'markdownStyleTask' };
-    Object.entries(styleLabels).forEach(([value, key]) => { markdownStyleSelect.querySelector(`[value="${value}"]`).textContent = t(key); });
-    const labels = { markdown: 'formatMarkdown', urls: 'formatUrls', titleUrl: 'formatTitleUrl', html: 'formatHtml' };
-    Object.entries(labels).forEach(([value, key]) => { formatSelect.querySelector(`[value="${value}"]`).textContent = t(key); });
+  const $=id=>document.getElementById(id),t=(k,...v)=>TabCopierI18n.t(k,v),track=(e,p={})=>TabCopierAnalytics.track(e,{...p,surface:'popup'});
+  let state,settings,tabs=[],selected=new Set(),anchor,groupName='',request=0,copying=false;
+  const toast=(text,error=false)=>{$('toast').textContent=text;$('toast').style.color=error?'#a43a24':'#188038';$('toast').classList.remove('hidden');};
+  const dialogs=bindDialogs(async()=>{await sync();await loadTabs();});
+  function setLabels(){
+    $('formatLabel').textContent=t('format');$('scopeLabel').textContent=label('scope');$('markdownStyleLabel').textContent=t('markdownStyle');
+    for(const value of ['window','tab','group','all'])$('scopeSelect').querySelector(`[value="${value}"]`).textContent=label(value)+(value==='group'?' · Pro':'');
+    for(const [value,key] of Object.entries({markdown:'formatMarkdown',urls:'formatUrls',titleUrl:'formatTitleUrl',html:'formatHtml'}))$('formatSelect').querySelector(`[value="${value}"]`).textContent=t(key);
+    for(const [value,key] of Object.entries({plain:'plain',bullet:'markdownStyleBullet',ordered:'markdownStyleOrdered',task:'markdownStyleTask'}))$('markdownStyleSelect').querySelector(`[value="${value}"]`).textContent=(value==='plain'?label(key):t(key))+(value==='plain'?'':' · Pro');
+    $('dedupLabel').textContent=t('removeDuplicates');$('dedupHelp').textContent=label('duplicateHelp');$('includeGroupLabel').textContent=label('includeGroup');
+    $('filterInput').placeholder=t('filterTabs');$('filterInput').setAttribute('aria-label',t('filterTabs'));$('previewHeading').textContent=t('preview');$('refreshPreviewBtn').textContent=t('refreshPreview');$('settingsLink').textContent=t('settings');
+    $('upgradeBtn').textContent=label('upgrade');$('contactBtn').textContent=label('contact');$('checkPurchaseBtn').textContent=label('check');
   }
-
-  async function loadTabs() {
-    const query = allWindowsToggle.checked ? {} : { currentWindow: true };
-    const tabs = await chrome.tabs.query(query);
-    tabsData = tabs
-      .filter((tab) => !isSystemUrl(tab.url || ''))
-      .filter((tab) => !(settings.excludePinned && tab.pinned))
-      .map((tab) => ({ id: tab.id, title: tab.title || t('untitled'), url: cleanUrl(tab.url || ''), favicon: tab.favIconUrl || FALLBACK_FAVICON }));
-    if (settings.removeDuplicates) {
-      const seen = new Set();
-      tabsData = tabsData.filter((tab) => !seen.has(tab.url) && seen.add(tab.url));
-    }
-    selectedIds = new Set(tabsData.map((tab) => tab.id));
-    renderTabs();
+  async function sync(){
+    state=await send('state');settings=effectiveSettings(state.settings,state.access);
+    if(settings.scope==='group'&&anchor?.groupId===-1)settings.scope='window';
+    $('scopeSelect').value=settings.scope;$('formatSelect').value=settings.format;$('markdownStyleSelect').value=settings.markdownStyle;
+    $('dedupToggle').checked=settings.removeDuplicates;$('includeGroupName').checked=settings.includeGroupName;
+    $('quotaLabel').textContent=state.claims?label('pro'):state.access.unlimited?label('legacy'):label('free',state.remaining);
+    if(state.networkIssue)toast(label('serviceError'),true);
   }
-
-  function isSystemUrl(url) { return /^(chrome|edge|about|devtools):/i.test(url); }
-  function cleanUrl(raw) {
-    if (!settings.removeTracking) return raw;
-    try {
-      const url = new URL(raw);
-      [...url.searchParams.keys()].filter((key) => /^(utm_|fbclid$|gclid$|mc_[ce]id$)/i.test(key)).forEach((key) => url.searchParams.delete(key));
-      return url.toString();
-    } catch { return raw; }
+  async function loadTabs(){
+    const seq=++request;let result=[];groupName='';const scope=settings.scope;
+    if(scope==='tab')result=[await chrome.tabs.get(anchor.id)];
+    else if(scope==='group'&&anchor.groupId!==-1){result=await chrome.tabs.query({windowId:anchor.windowId,groupId:anchor.groupId});const group=await chrome.tabGroups.get(anchor.groupId);groupName=group.title||label('group');}
+    else result=await chrome.tabs.query(scope==='all'?{}:{windowId:anchor.windowId});
+    if(seq!==request)return;
+    tabs=result.filter(tab=>usableUrl(tab.url)&&!(settings.excludePinned&&tab.pinned)).sort((a,b)=>a.windowId-b.windowId||a.index-b.index);
+    selected=new Set(tabs.map(tab=>tab.id));render();
   }
-
-  function renderTabs() {
-    const query = filterInput.value.trim().toLowerCase();
-    tabList.replaceChildren();
-    const visibleTabs = tabsData.filter((tab) => `${tab.title} ${tab.url}`.toLowerCase().includes(query));
-    if (!visibleTabs.length) {
-      const empty = document.createElement('div');
-      empty.className = 'empty-state';
-      empty.textContent = query ? t('noMatchingTabs') : t('noTabs');
-      tabList.appendChild(empty);
-    }
-    visibleTabs.forEach((tab) => {
-      const item = document.createElement('label'); item.className = 'tab-item';
-      const checkbox = document.createElement('input'); checkbox.type = 'checkbox'; checkbox.checked = selectedIds.has(tab.id); checkbox.dataset.tabId = String(tab.id); checkbox.addEventListener('change', () => { if (checkbox.checked) selectedIds.add(tab.id); else selectedIds.delete(tab.id); TabCopierAnalytics.track('Tab Selection Changed', { is_selected: checkbox.checked, selected_count: selectedIds.size, eligible_tab_count: tabsData.length, surface: 'popup' }); updateCount(); });
-      const favicon = document.createElement('img'); favicon.className = 'favicon'; favicon.src = tab.favicon; favicon.alt = ''; favicon.addEventListener('error', () => { favicon.src = FALLBACK_FAVICON; });
-      const titleSpan = document.createElement('span'); titleSpan.className = 'tab-title'; titleSpan.title = tab.title; titleSpan.textContent = tab.title;
-      item.append(checkbox, favicon, titleSpan); tabList.appendChild(item);
-    });
-    updateCount();
+  function visible(){const q=$('filterInput').value.trim().toLowerCase();return tabs.filter(tab=>`${tab.title} ${tab.url}`.toLowerCase().includes(q));}
+  function model(){return outputModel(visible().filter(tab=>selected.has(tab.id)).map(tab=>({...tab,title:tab.title||t('untitled')})),settings,state.access,groupName);}
+  function render(){
+    const v=visible(),list=$('tabList');list.replaceChildren();
+    if(!v.length){const p=document.createElement('p');p.className='empty-state';p.textContent=t($('filterInput').value?'noMatchingTabs':'noTabs');list.append(p);}
+    for(const tab of v){const row=document.createElement('label');row.className='tab-item';const check=document.createElement('input');check.type='checkbox';check.checked=selected.has(tab.id);check.disabled=copying;check.onchange=()=>{check.checked?selected.add(tab.id):selected.delete(tab.id);track('Tab Selection Changed',{is_selected:check.checked,selected_count:selected.size});render();};const icon=document.createElement('img');icon.className='favicon';icon.src='icons/icon16.png';icon.alt='';const title=document.createElement('span');title.className='tab-title';title.textContent=tab.title||t('untitled');title.title=tab.title||'';row.append(check,icon,title);list.append(row);}
+    const count=v.filter(tab=>selected.has(tab.id)).length;$('countLabel').textContent=t('selectedCount',String(count));$('selectAllBtn').textContent=t(count===v.length?'deselectAll':'selectAll');
+    $('markdownStyleRow').hidden=settings.format!=='markdown';$('groupTitleRow').hidden=settings.scope!=='group';$('groupHint').hidden=anchor.groupId!==-1;$('groupHint').textContent=label('noGroup');
+    const m=model(),preview=$('previewText');preview.replaceChildren();preview.classList.toggle('raw',settings.format!=='markdown');
+    if(!m.items.length)preview.textContent=t('previewEmpty');
+    else if(settings.format!=='markdown')preview.textContent=m.text;
+    else {if(m.group){const h=document.createElement('strong');h.textContent=m.group;preview.append(h);}const style=m.settings.markdownStyle;const container=document.createElement(style==='ordered'?'ol':style==='plain'?'div':'ul');if(style==='task')container.className='task-list';for(const item of m.items){const row=document.createElement(style==='plain'?'p':'li');if(style==='task'){row.className='task-item';const check=document.createElement('input');check.type='checkbox';check.disabled=true;check.className='task-box';row.append(check);}const link=document.createElement('span');link.className='markdown-link';link.textContent=item.title||t('untitled');link.title=item.url;row.append(link);container.append(row);}preview.append(container);}
+    $('dedupSummary').textContent=settings.removeDuplicates?label('removed',m.removed,m.items.length):'';$('copyBtn').disabled=copying||!m.items.length;$('copyBtnText').textContent=!state.access.unlimited&&state.remaining===0?label('quota'):t('copySelected');
+    for(const id of ['scopeSelect','formatSelect','markdownStyleSelect','filterInput','dedupToggle','includeGroupName','selectAllBtn'])$(id).disabled=copying;
   }
-
-  function selectedTabs() {
-    return tabsData.filter((tab) => selectedIds.has(tab.id));
-  }
-  function updateCount() {
-    const checkboxes = [...tabList.querySelectorAll('input[type="checkbox"]')];
-    const checked = checkboxes.filter((box) => box.checked);
-    countLabel.textContent = t('selectedCount', String(selectedIds.size));
-    selectAllBtn.classList.toggle('hidden', checkboxes.length === 0);
-    selectAllBtn.textContent = checked.length === checkboxes.length ? t('deselectAll') : t('selectAll');
-    updatePreview();
-  }
-  function showToast(message, isError = false) {
-    toast.textContent = message; toast.style.color = isError ? '#d93025' : '#188038'; toast.classList.remove('hidden');
-    clearTimeout(toastTimer); toastTimer = setTimeout(() => toast.classList.add('hidden'), 2200);
-  }
-  function escapeMarkdown(value) { return value.replace(/([\\\[\]])/g, '\\$1'); }
-  function outputFor(tabs) {
-    const format = formatSelect.value;
-    return tabs.map((tab, index) => {
-      if (format === 'urls') return tab.url;
-      if (format === 'titleUrl') return `${tab.title}\n${tab.url}`;
-      if (format === 'html') return `<a href="${tab.url.replace(/"/g, '&quot;')}">${tab.title.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</a>`;
-      const link = `[${escapeMarkdown(tab.title)}](${tab.url.replace(/\)/g, '\\)')})`;
-      if (markdownStyleSelect.value === 'ordered') return `${index + 1}. ${link}`;
-      if (markdownStyleSelect.value === 'task') return `- [ ] ${link}`;
-      return `- ${link}`;
-    }).join('\n');
-  }
-  function updateMarkdownStyleVisibility() {
-    markdownStyleRow.hidden = formatSelect.value !== 'markdown';
-  }
-  function updatePreview() {
-    const selected = selectedTabs();
-    previewText.replaceChildren();
-    if (!selected.length) {
-      previewText.classList.add('raw');
-      previewText.textContent = t('previewEmpty');
-      return;
-    }
-    if (formatSelect.value !== 'markdown') {
-      previewText.classList.add('raw');
-      previewText.textContent = outputFor(selected);
-      return;
-    }
-
-    previewText.classList.remove('raw');
-    const isTaskList = markdownStyleSelect.value === 'task';
-    const list = document.createElement(markdownStyleSelect.value === 'ordered' ? 'ol' : 'ul');
-    if (isTaskList) list.className = 'task-list';
-    selected.forEach((tab) => {
-      const item = document.createElement('li');
-      if (isTaskList) {
-        item.className = 'task-item';
-        const checkbox = document.createElement('input');
-        checkbox.type = 'checkbox';
-        checkbox.disabled = true;
-        checkbox.className = 'task-box';
-        item.appendChild(checkbox);
-      }
-      const linkText = document.createElement('span');
-      linkText.className = 'markdown-link';
-      linkText.textContent = tab.title;
-      linkText.title = tab.url;
-      item.appendChild(linkText);
-      list.appendChild(item);
-    });
-    previewText.appendChild(list);
-  }
-
-  localizeStaticText();
-  settings = { ...defaults, ...(await chrome.storage.local.get(defaults)) };
-  formatSelect.value = settings.format;
-  markdownStyleSelect.value = settings.markdownStyle;
-  updateMarkdownStyleVisibility();
-  allWindowsToggle.checked = settings.allWindows;
-  await loadTabs();
-  TabCopierAnalytics.track('Popup Opened', {
-    eligible_tab_count: tabsData.length,
-    format: formatSelect.value,
-    ...(formatSelect.value === 'markdown' ? { markdown_style: markdownStyleSelect.value } : {}),
-    all_windows: allWindowsToggle.checked,
-  });
-  selectAllBtn.addEventListener('click', () => { const boxes = [...tabList.querySelectorAll('input[type="checkbox"]')]; const select = boxes.some((box) => !box.checked); boxes.forEach((box) => { box.checked = select; if (select) selectedIds.add(Number(box.dataset.tabId)); else selectedIds.delete(Number(box.dataset.tabId)); }); TabCopierAnalytics.track('Tab Selection Bulk Changed', { action: select ? 'select_all' : 'deselect_all', selected_count: selectedIds.size, eligible_tab_count: tabsData.length, visible_tab_count: boxes.length, filter_active: filterInput.value.trim().length > 0, surface: 'popup' }); updateCount(); });
-  filterInput.addEventListener('input', renderTabs);
-  allWindowsToggle.addEventListener('change', async () => { settings.allWindows = allWindowsToggle.checked; await chrome.storage.local.set({ allWindows: settings.allWindows }); TabCopierAnalytics.track('All Windows Toggled', { all_windows: settings.allWindows, surface: 'popup' }); await loadTabs(); });
-  $('coffeeLink').addEventListener('click', () => { TabCopierAnalytics.track('Coffee Link Clicked', { destination: 'ko-fi', surface: 'popup' }); });
-  formatSelect.addEventListener('change', () => { chrome.storage.local.set({ format: formatSelect.value }); updateMarkdownStyleVisibility(); updatePreview(); TabCopierAnalytics.track('Format Changed', { format: formatSelect.value, surface: 'popup' }); });
-  markdownStyleSelect.addEventListener('change', () => { chrome.storage.local.set({ markdownStyle: markdownStyleSelect.value }); updatePreview(); TabCopierAnalytics.track('Markdown Style Changed', { markdown_style: markdownStyleSelect.value, surface: 'popup' }); });
-  $('refreshPreviewBtn').addEventListener('click', () => { updatePreview(); TabCopierAnalytics.track('Preview Refresh Clicked', { selected_count: selectedIds.size, format: formatSelect.value, ...(formatSelect.value === 'markdown' ? { markdown_style: markdownStyleSelect.value } : {}), surface: 'popup' }); });
-  copyBtn.addEventListener('click', async () => {
-    const selected = selectedTabs();
-    if (!selected.length) {
-      TabCopierAnalytics.track('Copy Blocked', { reason: 'none_selected', format: formatSelect.value });
-      return showToast(t('selectAtLeastOne'), true);
-    }
-    const properties = { format: formatSelect.value, ...(formatSelect.value === 'markdown' ? { markdown_style: markdownStyleSelect.value } : {}), selected_count: selected.length, eligible_tab_count: tabsData.length, all_windows: allWindowsToggle.checked, filter_active: filterInput.value.trim().length > 0 };
-    try { await navigator.clipboard.writeText(outputFor(selected)); showToast(t('copiedCount', String(selected.length))); TabCopierAnalytics.track('Tabs Copied', { ...properties, success: true }); }
-    catch { showToast(t('copyFailed'), true); TabCopierAnalytics.track('Tabs Copied', { ...properties, success: false }); }
-  });
+  function gate(){if(state.networkIssue)toast(label('serviceError'),true);else dialogs.upgrade();}
+  async function save(values){await chrome.storage.local.set(values);settings=effectiveSettings({...settings,...values},state.access);render();}
+  try{[anchor]=await chrome.tabs.query({active:true,currentWindow:true});if(!anchor)throw new Error('NO_ACTIVE_TAB');setLabels();try{const userSettings=await chrome.action.getUserSettings();if(!userSettings.isOnToolbar){$('pinHint').hidden=false;$('pinHint').textContent=chrome.i18n.getUILanguage().startsWith('zh')?'点击 Chrome 拼图图标，找到 Tab Copier 并点击固定。':'Open Chrome’s extensions menu and pin Tab Copier for easy access.';}}catch{}$('scopeSelect').querySelector('[value="group"]').disabled=anchor.groupId===-1;await sync();await loadTabs();track('Popup Opened',{scope:settings.scope,format:settings.format});}
+  catch{toast(label('serviceError'),true);$('copyBtn').disabled=true;return;}
+  $('scopeSelect').onchange=async()=>{const scope=$('scopeSelect').value;if(scope==='group'&&!state.access.groups){$('scopeSelect').value=settings.scope;return gate();}try{await save({scope});await loadTabs();track('Window Scope Changed',{scope});}catch{toast(label('serviceError'),true);}};
+  $('formatSelect').onchange=async()=>{await save({format:$('formatSelect').value});track('Format Changed',{format:settings.format});};
+  $('markdownStyleSelect').onchange=async()=>{const value=$('markdownStyleSelect').value;if(value!=='plain'&&!state.access.lists){$('markdownStyleSelect').value=settings.markdownStyle;return gate();}await save({markdownStyle:value});track('Markdown Style Changed',{markdown_style:value});};
+  $('dedupToggle').onchange=async()=>{const enabled=$('dedupToggle').checked;if(enabled&&!state.access.dedup){$('dedupToggle').checked=false;return gate();}await save({removeDuplicates:enabled});track('Deduplication Changed',{enabled});};
+  $('includeGroupName').onchange=()=>save({includeGroupName:$('includeGroupName').checked});
+  $('filterInput').oninput=render;$('refreshPreviewBtn').onclick=()=>{render();track('Preview Refresh Clicked');};
+  $('selectAllBtn').onclick=()=>{const v=visible(),all=v.every(tab=>selected.has(tab.id));v.forEach(tab=>all?selected.delete(tab.id):selected.add(tab.id));render();track('Tab Selection Bulk Changed',{action:all?'deselect_all':'select_all'});};
+  $('upgradeBtn').onclick=dialogs.upgrade;$('contactBtn').onclick=dialogs.contact;
+  $('checkPurchaseBtn').onclick=async()=>{try{await permission();const result=await send('checkPurchase');await sync();render();toast(label(result.status==='active'?'active':'pending'));}catch{toast(label('serviceError'),true);}};
+  $('coffeeLink').onclick=()=>track('Coffee Link Clicked',{destination:'ko-fi'});
+  $('copyBtn').onclick=async()=>{
+    copying=true;render();let prepared,written=false;
+    try{prepared=await send('prepareCopy',{tabs:visible().filter(tab=>selected.has(tab.id)).map(tab=>({id:tab.id,title:tab.title||t('untitled'),url:tab.url})),scope:settings.scope,groupName});if(prepared.text!==model().text)throw new Error('PREVIEW_CHANGED');await navigator.clipboard.writeText(prepared.text);written=true;if(prepared.limited)await send('commitCopy',{operation:prepared.operation});toast(t('copiedCount',String(prepared.count)));track('Tabs Copied',{success:true,scope:settings.scope,format:settings.format,selected_count:prepared.count});}
+    catch(e){if(prepared?.limited&&!written)await send('releaseCopy',{operation:prepared.operation}).catch(()=>{});if(e.message==='QUOTA_EXHAUSTED')dialogs.upgrade();else toast(written?label('copyUnrecorded'):t('copyFailed'),true);track('Tabs Copied',{success:written});}
+    finally{copying=false;try{await sync();}catch{toast(label('serviceError'),true);}render();}
+  };
+  chrome.storage.onChanged.addListener(async(changes,area)=>{if(area!=='local'||!Object.keys(changes).some(k=>['scope','format','markdownStyle','removeDuplicates','removeTracking','excludePinned','includeGroupName','entitlement'].includes(k)))return;try{const previous=settings.scope,pinned=settings.excludePinned;await sync();if(previous!==settings.scope||pinned!==settings.excludePinned)await loadTabs();else render();}catch{toast(label('serviceError'),true);}});
 });

@@ -13,3 +13,13 @@ Thumbs.db
 # (SOP / store copy should live in your private wiki repo instead)
 *SOP*.md
 STORE_INFO.md
+
+# Website dependencies, builds and private configuration
+website/node_modules/
+website/.next/
+website/.vercel/
+website/.env*
+!website/.env.example
+website/*.tsbuildinfo
+website/sandbox-public-key.pem
+build/

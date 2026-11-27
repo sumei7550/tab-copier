@@ -16,7 +16,7 @@
       <button type="button" id="selectAllBtn" class="link-btn"></button>
       <span class="count" id="countLabel"></span>
     </div>
-    <div class="toolbar">
+    <p id="pinHint" class="hint" hidden></p><div class="quota-row"><span id="quotaLabel"></span><button id="upgradeBtn" class="link-btn" type="button"></button></div><div class="toolbar"><label for="scopeSelect" id="scopeLabel"></label><select id="scopeSelect"><option value="window"></option><option value="tab"></option><option value="group"></option><option value="all"></option></select></div><p id="groupHint" class="hint" hidden></p><div class="toolbar">
       <label class="format-label" for="formatSelect" id="formatLabel"></label>
       <select id="formatSelect" aria-labelledby="formatLabel">
         <option value="markdown"></option>
@@ -24,17 +24,16 @@
         <option value="titleUrl"></option>
         <option value="html"></option>
       </select>
-      <label class="scope-toggle"><input type="checkbox" id="allWindowsToggle" /> <span id="allWindowsLabel"></span></label>
     </div>
     <div class="markdown-style-row" id="markdownStyleRow" hidden>
       <label class="format-label" for="markdownStyleSelect" id="markdownStyleLabel"></label>
       <select id="markdownStyleSelect">
-        <option value="bullet"></option>
+        <option value="plain"></option><option value="bullet"></option>
         <option value="ordered"></option>
         <option value="task"></option>
       </select>
     </div>
-    <div class="filter-row"><input type="search" id="filterInput" autocomplete="off" /></div>
+    <div class="toolbar"><label><input type="checkbox" id="dedupToggle"><span id="dedupLabel"></span> <small class="pro-tag">Pro</small></label><label id="groupTitleRow" hidden><input type="checkbox" id="includeGroupName"><span id="includeGroupLabel"></span></label></div><p class="hint" id="dedupHelp"></p><div class="filter-row"><input type="search" id="filterInput" autocomplete="off" /></div>
     <div class="tab-list" id="tabList"></div>
     <section class="preview" aria-labelledby="previewHeading">
       <div class="preview-header">
@@ -43,7 +42,7 @@
       </div>
       <div id="previewText" class="preview-content"></div>
     </section>
-    <div class="footer">
+    <p id="dedupSummary" class="hint" role="status"></p><div class="footer">
       <button id="copyBtn" class="primary-btn">
         <svg class="btn-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
@@ -52,7 +51,7 @@
         <span id="copyBtnText"></span>
       </button>
       <div id="toast" class="toast hidden" role="status"></div>
-      <a href="options.html" target="_blank" class="settings-link" id="settingsLink"></a>
+      <button type="button" id="checkPurchaseBtn" class="link-btn"></button><button type="button" id="contactBtn" class="link-btn"></button><a href="options.html" target="_blank" class="settings-link" id="settingsLink"></a>
       <a href="https://ko-fi.com/sumei7550" target="_blank" rel="noopener noreferrer" class="kofi-link" id="coffeeLink">
         ☕ Buy me a coffee
       </a>
@@ -60,6 +59,9 @@
   </div>
   <script src="i18n.js"></script>
   <script src="analytics.js"></script>
-  <script src="popup.js"></script>
+
+  <dialog id="proDialog"><h2 id="proTitle"></h2><p id="proDescription"></p><button type="button" id="plansBtn" class="primary-btn"></button><button type="button" id="proClose"></button></dialog>
+  <dialog id="supportDialog"><h2 id="supportTitle"></h2><p id="supportIntro"></p><button type="button" id="mailBtn" class="primary-btn"></button><p id="mailHint"></p><p>sumei7550@outlook.com</p><button type="button" id="copyEmailBtn"></button><button type="button" id="copyTemplateBtn"></button><hr><p id="recoveryHint"></p><button type="button" id="restoreBtn"></button><p id="supportStatus" role="status"></p><button type="button" id="supportClose"></button></dialog>
+  <script type="module" src="popup.js"></script>
 </body>
 </html>

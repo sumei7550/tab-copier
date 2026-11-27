@@ -1,0 +1,7 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><title>Tab Copier 沙盒</title>
+<style>body{width:350px;padding:16px;font:14px/1.6 system-ui}label{display:block;margin:10px 0}input,textarea,button{box-sizing:border-box;width:100%;padding:8px;font:inherit}button{margin:5px 0}pre{white-space:pre-wrap;overflow-wrap:anywhere}small{color:#555}</style>
+<h2>自动激活 · 沙盒调试</h2><p>仅连接 localhost:3000，不读取浏览标签，不处理正式付款。</p>
+<label>沙盒签名公钥（SPKI PEM）<textarea id="publicKey" rows="4" placeholder="粘贴本地生成的公钥，不是私钥"></textarea></label>
+<button id="save">保存公钥</button><button id="buy">开始沙盒购买</button><button id="check">检查付款并自动激活</button><button id="refresh">刷新本设备授权</button>
+<hr><h3>联系客服</h3><button id="email">打开邮件应用</button><button id="copyEmail">复制支持邮箱</button><button id="copyTemplate">复制邮件模板</button><button id="recoveryRequest">恢复购买</button><button id="recoveryRedeem">完成恢复</button>
+<pre id="status" role="status">尚未开始。</pre><small>只显示状态，不显示内部授权令牌。真实插件需构建时固定可信公钥，不允许用户输入。</small><script type="module" src="popup.js"></script></html>

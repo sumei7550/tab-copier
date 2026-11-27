@@ -13,16 +13,19 @@
     <section>
       <h2 id="copyDefaultsHeading"></h2>
       <label><span id="defaultFormatLabel"></span><select id="defaultFormat"><option value="markdown"></option><option value="urls"></option><option value="titleUrl"></option><option value="html"></option></select></label>
-      <label><input type="checkbox" id="defaultAllWindows" /> <span id="defaultAllWindowsLabel"></span></label>
+      <label><span id="defaultScopeLabel"></span><select id="defaultScope"><option value="window"></option><option value="tab"></option><option value="group"></option><option value="all"></option></select></label>
       <label><input type="checkbox" id="excludePinned" /> <span id="excludePinnedLabel"></span></label>
-      <label><input type="checkbox" id="removeDuplicates" /> <span id="removeDuplicatesLabel"></span></label>
+      <label><input type="checkbox" id="removeDuplicates" /> <span id="removeDuplicatesLabel"></span> <small>Pro</small></label>
       <label><input type="checkbox" id="removeTracking" /> <span id="removeTrackingLabel"></span></label>
     </section>
     <section><h2 id="shortcutHeading"></h2><p id="shortcutText"></p><a href="chrome://extensions/shortcuts" id="shortcutLink"></a></section>
-    <p id="savedMessage" class="saved" role="status"></p>
+    <section><p id="licenseState"></p><button id="upgradeBtn" type="button"></button><button id="contactBtn" type="button"></button></section><p id="savedMessage" class="saved" role="status"></p>
   </main>
   <script src="i18n.js"></script>
   <script src="analytics.js"></script>
-  <script src="options.js"></script>
+
+  <dialog id="proDialog"><h2 id="proTitle"></h2><p id="proDescription"></p><button type="button" id="plansBtn" class="primary-btn"></button><button type="button" id="proClose"></button></dialog>
+  <dialog id="supportDialog"><h2 id="supportTitle"></h2><p id="supportIntro"></p><button type="button" id="mailBtn" class="primary-btn"></button><p id="mailHint"></p><p>sumei7550@outlook.com</p><button type="button" id="copyEmailBtn"></button><button type="button" id="copyTemplateBtn"></button><hr><p id="recoveryHint"></p><button type="button" id="restoreBtn"></button><p id="supportStatus" role="status"></p><button type="button" id="supportClose"></button></dialog>
+  <script type="module" src="options.js"></script>
 </body>
 </html>
