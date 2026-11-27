@@ -1,12 +1,14 @@
 import { effectiveSettings, outputModel, usableUrl } from './extension/core.mjs';
 import { label } from './extension/labels.mjs';
 import { send, permission, bindDialogs } from './extension/client.mjs';
+import { watchLocalState } from './extension/watch-state.mjs';
 
 document.addEventListener('DOMContentLoaded', async () => {
   const $=id=>document.getElementById(id),t=(k,...v)=>TabCopierI18n.t(k,v),track=(e,p={})=>TabCopierAnalytics.track(e,{...p,surface:'popup'});
   let state,settings,tabs=[],selected=new Set(),anchor,groupName='',request=0,copying=false;
   const toast=(text,error=false)=>{$('toast').textContent=text;$('toast').style.color=error?'#a43a24':'#188038';$('toast').classList.remove('hidden');};
   const dialogs=bindDialogs(async()=>{await sync();await loadTabs();});
+  const watcher=watchLocalState(chrome.storage,async()=>{const previous=settings.scope,pinned=settings.excludePinned;await sync();if(previous!==settings.scope||pinned!==settings.excludePinned)await loadTabs();else render();},()=>toast(label('serviceError'),true));
   function setLabels(){
     $('formatLabel').textContent=t('format');$('scopeLabel').textContent=label('scope');$('markdownStyleLabel').textContent=t('markdownStyle');
     for(const value of ['window','tab','group','all'])$('scopeSelect').querySelector(`[value="${value}"]`).textContent=label(value)+(value==='group'?' · Pro':'');
@@ -18,6 +20,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
   async function sync(){
     state=await send('state');settings=effectiveSettings(state.settings,state.access);
+    dialogs.update(state);
+    $('scopeSelect').querySelector('[value="group"]').textContent=label('group')+(state.access.groups?'':' · Pro');
+    for(const [value,key] of Object.entries({bullet:'markdownStyleBullet',ordered:'markdownStyleOrdered',task:'markdownStyleTask'}))$('markdownStyleSelect').querySelector(`[value="${value}"]`).textContent=t(key)+(state.access.lists?'':' · Pro');
+    for(const badge of document.querySelectorAll('.pro-tag'))badge.hidden=!!state.claims;
     if(settings.scope==='group'&&anchor?.groupId===-1)settings.scope='window';
     $('scopeSelect').value=settings.scope;$('formatSelect').value=settings.format;$('markdownStyleSelect').value=settings.markdownStyle;
     $('dedupToggle').checked=settings.removeDuplicates;$('includeGroupName').checked=settings.includeGroupName;
@@ -68,5 +74,5 @@ document.addEventListener('DOMContentLoaded', async () => {
     catch(e){if(prepared?.limited&&!written)await send('releaseCopy',{operation:prepared.operation}).catch(()=>{});if(e.message==='QUOTA_EXHAUSTED')dialogs.upgrade();else toast(written?label('copyUnrecorded'):t('copyFailed'),true);track('Tabs Copied',{success:written});}
     finally{copying=false;try{await sync();}catch{toast(label('serviceError'),true);}render();}
   };
-  chrome.storage.onChanged.addListener(async(changes,area)=>{if(area!=='local'||!Object.keys(changes).some(k=>['scope','format','markdownStyle','removeDuplicates','removeTracking','excludePinned','includeGroupName','entitlement'].includes(k)))return;try{const previous=settings.scope,pinned=settings.excludePinned;await sync();if(previous!==settings.scope||pinned!==settings.excludePinned)await loadTabs();else render();}catch{toast(label('serviceError'),true);}});
+  await watcher.ready();
 });

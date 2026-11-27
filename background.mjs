@@ -64,12 +64,19 @@ const buy=createPurchaseFlow({
   schedule:async()=>{await chrome.storage.local.set({purchaseStartedAt:Date.now()});await chrome.alarms.create('purchase-check',{delayInMinutes:0.5,periodInMinutes:0.5});},
 });
 function refreshInBackground(){if(!refreshFlight)refreshFlight=state(true).catch(()=>{}).finally(()=>{refreshFlight=undefined;});}
+async function resumePurchasePolling(s){
+  if(!s.purchaseStartedAt||Date.now()-s.purchaseStartedAt>600_000){
+    await chrome.storage.local.set({purchaseStartedAt:Date.now()});
+    await chrome.alarms.create('purchase-check',{delayInMinutes:0.5,periodInMinutes:0.5});
+  }
+  await checkPurchase();
+}
 async function handle(message) {
   await initialize();
   if (message.type === 'state') {
-    const s = await chrome.storage.local.get(['purchaseId', 'entitlement', 'lastLicenseCheck']);
+    const s = await chrome.storage.local.get(['purchaseId', 'entitlement', 'lastLicenseCheck','purchaseStartedAt']);
     const cached=await state();
-    if(s.purchaseId&&!s.entitlement)void checkPurchase().catch(()=>{});
+    if(s.purchaseId&&!cached.claims)void resumePurchasePolling(s).catch(()=>{});
     if(!s.lastLicenseCheck||Date.now()-s.lastLicenseCheck>12*3_600_000)refreshInBackground();
     return cached;
   }

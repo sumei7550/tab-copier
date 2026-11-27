@@ -6,6 +6,7 @@ export function bindDialogs(onChange=()=>{}) {
   const $=id=>document.getElementById(id), result=t=>{$('supportStatus').textContent=t;};
   const track=(event,properties={})=>{if(typeof TabCopierAnalytics!=='undefined')void TabCopierAnalytics.track(event,properties);};
   const pro=$('proDialog'),support=$('supportDialog');
+  let active=false;
   const safe=fn=>async()=>{try{await fn();}catch(e){result(label(e.message==='PAYMENT_NOT_CONFIGURED'?'notConfigured':'serviceError'));}};
   $('proTitle').textContent='Tab Copier Pro';$('proDescription').textContent=label('proRequired');$('plansBtn').textContent=label('viewPlans');$('proClose').textContent=label('cancel');
   $('proClose').onclick=()=>pro.close();$('supportTitle').textContent=label('contact');$('supportIntro').textContent=label('supportIntro');$('mailHint').textContent=label('mailHint');$('recoveryHint').textContent=label('recoveryHint');
@@ -22,5 +23,9 @@ export function bindDialogs(onChange=()=>{}) {
   $('copyEmailBtn').textContent=label('copyEmail');$('copyEmailBtn').onclick=safe(async()=>{await navigator.clipboard.writeText('sumei7550@outlook.com');result(label('copied'));});
   $('copyTemplateBtn').textContent=label('copyTemplate');$('copyTemplateBtn').onclick=safe(async()=>{await navigator.clipboard.writeText(await template());result(label('copied'));});
   $('restoreBtn').textContent=label('restore');$('restoreBtn').onclick=safe(async()=>{track('Restore Purchase Clicked');if(!config.publicKey)throw new Error('PAYMENT_NOT_CONFIGURED');await permission();const r=await send('restore');track('Restore Purchase Result',{status:r.status});result(label(r.status==='active'?'active':'contactRestore'));await onChange();});
-  return { upgrade(){track('Upgrade Viewed');if(support.open)support.close();$('proDescription').textContent=label('proRequired');pro.showModal();}, contact(){track('Support Opened');result('');support.showModal();} };
+  return {
+    update(state){active=!!state.claims;$('upgradeBtn').hidden=active;if(active&&pro.open)pro.close();},
+    upgrade(){if(active)return;track('Upgrade Viewed');if(support.open)support.close();$('proDescription').textContent=label('proRequired');if(!pro.open)pro.showModal();},
+    contact(){track('Support Opened');result('');if(!support.open)support.showModal();}
+  };
 }
