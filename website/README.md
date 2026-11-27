@@ -22,7 +22,7 @@ Copy-Item .env.example .env.local
 npm run dev
 ```
 
-1. 新建独立 Supabase 测试项目，按顺序检查并执行 supabase/migrations/001_sandbox.sql、002_manual_recovery.sql、003_resume_checkout.sql 和 004_purchase_contact.sql。已执行过 001–003 的数据库只执行 004；保留现有订单与授权。迁移已通过本地 PostgreSQL/WASM 验证，远程执行需在 Supabase SQL Editor 完成。
+1. 新建独立 Supabase 测试项目，按顺序检查并执行 supabase/migrations/001_sandbox.sql、002_manual_recovery.sql、003_resume_checkout.sql、004_purchase_contact.sql 和 005_transaction_aliases.sql。已执行过 001–004 的数据库只执行 005；保留现有订单与授权。迁移已通过本地 PostgreSQL/WASM 验证，远程执行需在 Supabase SQL Editor 完成。
 2. 在 .env.local 配置沙盒应用 Client ID/Secret、沙盒商户 ID、Webhook ID、Supabase URL/服务端密钥。真实卖家邮箱不能替代这些值，沙盒卖家与正式个人卖家是不同环境。
 3. 执行 `node scripts/create-sandbox-keys.mjs` 生成本地 Ed25519 密钥和派生密钥。工具仅写入未追踪的 .env.local，拒绝覆盖已有密钥；sandbox-public-key.pem 供调试扩展使用。不要把私钥放调试扩展或 NEXT_PUBLIC_ 变量。设置 ENTITLEMENT_KEY_ID=sandbox-v1。
 4. Webhook 配置可从公网访问的沙盒 Vercel URL，订阅 PAYMENT.CAPTURE.COMPLETED / REFUNDED / REVERSED，APP_URL 与部署 origin 一致。localhost 本身不能接收 PayPal 通知。
@@ -41,6 +41,8 @@ npm run dev
 - 活跃请求限流按分钟 DB 原子计数；部署在 Vercel 外需重新配置可信代理来源，不能盲信客户端 IP。
 
 ## 人工恢复操作（沙盒）
+
+最新查询支持购买邮箱/PayPal 邮箱候选选择、卖家号及已核实买家号关联，需执行 `005_transaction_aliases.sql`。PayPal 付款邮箱来自已验证的交易响应；管理员页有成对接口验证入口。详见 `../docs/1.3/TRANSACTION_LOOKUP_VERIFICATION.md`，本地测试不代表真实账号已获得报表查询权限。
 
 推荐使用受管理员验证保护的 `/admin/recovery` 页面，直接使用 Vercel 已有服务端配置。首次只需执行 `004_purchase_contact.sql`，生成并配置 `ADMIN_PASSWORD_HASH` 后重新部署；详细步骤见 `../docs/1.3/ADMIN_RECOVERY.md`。下面的本机命令工具仍保留，适用于已配置本地服务端环境的操作员，不再是必经流程。
 

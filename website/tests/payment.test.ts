@@ -4,7 +4,7 @@ import { verifiedCapture } from '../src/lib/payment-validation.ts';
 const order = { id: 'local-order', provider_order_id: 'PAYPAL1', plan: 'month' };
 function payload() { return { id: 'PAYPAL1', status: 'COMPLETED', payer: { payer_id: 'PAYER1' }, purchase_units: [{ custom_id: 'local-order', payee: { merchant_id: 'SELLER1' }, payments: { captures: [{ id: 'CAPTURE1', status: 'COMPLETED', final_capture: true, amount: { currency_code: 'USD', value: '4.99' } }] } }] }; }
 test('only the exact completed, matched payment is accepted', () => {
-  assert.deepEqual(verifiedCapture(payload(), order, 'SELLER1'), { captureId: 'CAPTURE1', payerId: 'PAYER1' });
+  assert.deepEqual(verifiedCapture(payload(), order, 'SELLER1'), { captureId: 'CAPTURE1', payerId: 'PAYER1',payerEmail:null });
 });
 test('a browser-approved order does not grant entitlement', () => {
   const p = payload(); p.status = 'APPROVED'; assert.throws(() => verifiedCapture(p, order, 'SELLER1'));

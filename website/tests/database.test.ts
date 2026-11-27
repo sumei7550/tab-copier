@@ -10,11 +10,26 @@ import { pgcrypto } from '@electric-sql/pglite/contrib/pgcrypto';
 const db = new PGlite({ extensions: { pgcrypto } });
 before(async () => {
   await db.exec('create role anon; create role authenticated; create role service_role;');
-  for (const file of ['001_sandbox.sql', '002_manual_recovery.sql', '003_resume_checkout.sql','004_purchase_contact.sql']) {
+  for (const file of ['001_sandbox.sql', '002_manual_recovery.sql', '003_resume_checkout.sql','004_purchase_contact.sql','005_transaction_aliases.sql']) {
     await db.exec(await readFile(new URL('../supabase/migrations/' + file, import.meta.url), 'utf8'));
   }
 });
 after(async () => { await db.close(); });
+test('verified buyer aliases are idempotent, cannot be rebound and never bypass payment state',async()=>{
+  const a=await seed(),b=await seed();await paid(a);await paid(b);
+  assert.equal(await call('record_transaction_alias',['BUYER123456789012',a.order.id,'manual_paypal_dashboard','Checked seller dashboard']),true);
+  assert.equal(await call('record_transaction_alias',['BUYER123456789012',a.order.id,'manual_paypal_dashboard','Retry same binding']),true);
+  await assert.rejects(call('record_transaction_alias',['BUYER123456789012',b.order.id,'manual_paypal_dashboard','Wrong order association']),/TRANSACTION_ALIAS_CONFLICT/);
+  const captures=await db.query<{provider_capture_id:string}>('select provider_capture_id from orders where id=$1',[a.order.id]);
+  await assert.rejects(call('record_transaction_alias',[captures.rows[0].provider_capture_id,b.order.id,'manual_paypal_dashboard','Wrong capture association']),/TRANSACTION_ALIAS_CONFLICT/);
+  const unpaid=await seed();await assert.rejects(call('record_transaction_alias',['BUYER999999999999',unpaid.order.id,'manual_paypal_dashboard','Unpaid must fail']),/NOT_PAID/);
+  await db.exec('set role anon');try{await assert.rejects(db.query('select * from paypal_transaction_aliases'),/permission denied/);await assert.rejects(call('record_transaction_alias',['BUYER123456789012',a.order.id,'manual_paypal_dashboard','Anonymous must fail']),/permission denied/);}finally{await db.exec('reset role');}
+});
+test('verified capture stores PayPal email separately and retry never extends license',async()=>{
+  const s=await seed();await call('record_capture',[s.order.id,s.capture,s.payer,'Payer@Example.com']);
+  const first=await activate(s);await call('record_capture',[s.order.id,s.capture,s.payer,'Payer@Example.com']);const again=await activate(s);
+  const r=await db.query<{paypal_payer_email:string;purchase_email:null}>('select paypal_payer_email,purchase_email from orders where id=$1',[s.order.id]);assert.equal(r.rows[0].paypal_payer_email,'payer@example.com');assert.equal(r.rows[0].purchase_email,null);assert.equal(first.expires_at,again.expires_at);
+});
 test('resume renews a single-use ticket while preserving the original order and poll credentials',async()=>{
   const s=await seed();
   const original=await db.query<{provider_order_id:string}>('select provider_order_id from orders where id=$1',[s.order.id]);

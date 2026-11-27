@@ -16,9 +16,12 @@ test('opening popup automatically activates a paid purchase and updates controls
     runtime:{id:'extension',getURL:(s:string)=>'chrome-extension://extension/'+s,onMessage:{addListener(fn:any){handler=fn;}},onInstalled:{addListener(){}}},
     alarms:{async create(){},async clear(){},onAlarm:{addListener(){}}},tabs:{async create(){throw Error('no checkout required');}}
   };
-  const originalFetch=globalThis.fetch;
+  const originalFetch=globalThis.fetch;let recoveryConfirmed=false;
   globalThis.fetch=(async(url:any)=>{
-    calls.push(String(url));return {ok:true,json:async()=>String(url).endsWith('/status')?{status:'paid'}:{entitlement,refreshToken:'refresh'}};
+    calls.push(String(url));
+    if(String(url).endsWith('/recovery/requests'))return {ok:true,json:async()=>({recoveryId:'request',recoverySecret:'secret',expiresAt:new Date(Date.now()+86400000).toISOString()})};
+    if(String(url).endsWith('/redeem')&&!recoveryConfirmed)return {ok:false,json:async()=>({error:'RECOVERY_PENDING'})};
+    return {ok:true,json:async()=>String(url).endsWith('/status')?{status:'paid'}:{entitlement,refreshToken:'refresh'}};
   }) as any;
   try{
     const entry=new URL('../../background.mjs',import.meta.url);
@@ -37,5 +40,14 @@ test('opening popup automatically activates a paid purchase and updates controls
     assert.equal(copy.ok,true);assert.equal(copy.result.count,1);assert.match(copy.result.text,/1\. \[One\]/);assert.equal(copy.result.limited,false);
     assert.equal((await send('restore')).result.status,'active');
     assert.ok(!calls.some(url=>url.includes('/recovery/')),'same-device restore refreshes existing entitlement');
+    delete data.entitlement;delete data.refreshToken;
+    assert.equal((await send('restore')).result.status,'active','same restore action also retrieves a locally known paid purchase');
+    data={schema13:true,installationId:'new-install'};
+    const results=await Promise.all([send('restore'),send('restore')]);
+    assert.ok(results.every(result=>result.result.status==='contact'));
+    assert.equal(calls.filter(url=>url.endsWith('/recovery/requests')).length,1,'repeat clicks create one recovery request');
+    assert.equal((await send('restore')).result.status,'contact','unconfirmed link cannot activate');
+    recoveryConfirmed=true;
+    assert.equal((await send('restore')).result.status,'active','confirmed recovery uses the same entry to redeem');
   }finally{globalThis.fetch=originalFetch;}
 });

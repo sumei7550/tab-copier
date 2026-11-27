@@ -10,5 +10,5 @@ export async function settle(providerId: string) {
   let capture;
   try { capture = verifiedCapture(payload, order, env('PAYPAL_MERCHANT_ID')); }
   catch { throw new ApiError('PAYMENT_NOT_CONFIRMED', 409); }
-  return rpc('record_capture', { p_order: order.id, p_capture: capture.captureId, p_payer: capture.payerId });
+  return rpc('record_capture', { p_order: order.id, p_capture: capture.captureId, p_payer: capture.payerId,p_payer_email:capture.payerEmail });
 }

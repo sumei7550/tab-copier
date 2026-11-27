@@ -23,6 +23,7 @@ test('active entitlement closes stale paywall, hides upgrade entry and prevents 
   dialogs.upgrade();assert.equal(node('proDialog').open,true);
   dialogs.update({claims:{plan:'trial'}});
   assert.equal(node('proDialog').open,false);assert.equal(node('upgradeBtn').hidden,true);
+  assert.equal(node('restorePurchaseBtn').hidden,true);
   dialogs.upgrade();assert.equal(node('proDialog').open,false);
   dialogs.update({claims:null});dialogs.upgrade();assert.equal(node('proDialog').open,true);
 });

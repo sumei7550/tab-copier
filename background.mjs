@@ -3,7 +3,7 @@ import { defaults, rights, quotaState, localDay, reserveCopy, commitCopy, output
 import { verifyEntitlement } from './extension/verify.mjs';
 import { createPurchaseFlow } from './extension/purchase.mjs';
 let queue = Promise.resolve();
-let checkFlight,refreshFlight;
+let checkFlight,refreshFlight,restoreFlight;
 let initFlight;
 const serial = fn => { const run = queue.then(fn); queue = run.catch(() => {}); return run; };
 async function api(path, data, credential) {
@@ -71,6 +71,23 @@ async function resumePurchasePolling(s){
   }
   await checkPurchase();
 }
+async function restorePurchase() {
+    if(!config.publicKey)throw new Error('PAYMENT_NOT_CONFIGURED');
+    const s = await chrome.storage.local.get(null);
+    if (s.refreshToken) { const current = await state(true); if (current.claims) return { status: 'active' }; if (current.networkIssue) throw new Error('SERVICE_UNAVAILABLE'); }
+    if(s.purchaseId&&s.pollToken){const purchase=await checkPurchase();if(purchase.status==='active')return purchase;}
+    if (s.recoveryId && s.recoverySecret && Date.parse(s.recoveryExpiresAt) > Date.now()) {
+      try {
+        const r = await api(`/api/recovery/${s.recoveryId}/redeem`, { installationId: s.installationId }, s.recoverySecret);
+        await verify(r.entitlement); await chrome.storage.local.set({ refreshToken: r.refreshToken, entitlement: r.entitlement, lastLicenseCheck: Date.now() });
+        await chrome.storage.local.remove(['purchaseId', 'pollToken']); return { status: 'active' };
+      } catch (e) { if (e.message === 'RECOVERY_PENDING') return { status: 'contact' }; if (!['EXPIRED', 'REVOKED', 'UNAUTHORIZED'].includes(e.message)) throw e; }
+    }
+    const r = await api('/api/recovery/requests', { installationId: s.installationId });
+    await chrome.storage.local.set({ recoveryId: r.recoveryId, recoverySecret: r.recoverySecret, recoveryExpiresAt: r.expiresAt });
+    return { status: 'contact' };
+  }
+
 async function handle(message) {
   await initialize();
   if (message.type === 'state') {
@@ -84,20 +101,7 @@ async function handle(message) {
     return buy();
   }
   if (message.type === 'checkPurchase') return checkPurchase();
-  if (message.type === 'restore') {
-    const s = await chrome.storage.local.get(null);
-    if (s.refreshToken) { const current = await state(true); if (current.claims) return { status: 'active' }; if (current.networkIssue) throw new Error('SERVICE_UNAVAILABLE'); }
-    if (s.recoveryId && s.recoverySecret && Date.parse(s.recoveryExpiresAt) > Date.now()) {
-      try {
-        const r = await api(`/api/recovery/${s.recoveryId}/redeem`, { installationId: s.installationId }, s.recoverySecret);
-        await verify(r.entitlement); await chrome.storage.local.set({ refreshToken: r.refreshToken, entitlement: r.entitlement, lastLicenseCheck: Date.now() });
-        await chrome.storage.local.remove(['purchaseId', 'pollToken']); return { status: 'active' };
-      } catch (e) { if (e.message === 'RECOVERY_PENDING') return { status: 'contact' }; if (!['EXPIRED', 'REVOKED'].includes(e.message)) throw e; }
-    }
-    const r = await api('/api/recovery/requests', { installationId: s.installationId });
-    await chrome.storage.local.set({ recoveryId: r.recoveryId, recoverySecret: r.recoverySecret, recoveryExpiresAt: r.expiresAt });
-    return { status: 'contact' };
-  }
+  if (message.type === 'restore') {if(!restoreFlight)restoreFlight=restorePurchase().finally(()=>{restoreFlight=undefined;});return restoreFlight;}
   if (message.type === 'prepareCopy') {
     const current = await state(); const settings = { ...current.settings, scope: message.scope || current.settings.scope };
     if (settings.scope === 'group' && !current.access.groups) throw new Error('PRO_REQUIRED');

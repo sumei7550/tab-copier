@@ -13,5 +13,7 @@ export function verifiedCapture(payload: any, order: { id: string; provider_orde
   if (capture.status !== 'COMPLETED' || capture.final_capture !== true ||
       capture.amount?.currency_code !== 'USD' || capture.amount?.value !== price(order.plan) ||
       typeof capture.id !== 'string' || !capture.id) throw new Error('PAYMENT_MISMATCH');
-  return { captureId: capture.id, payerId: typeof payload.payer?.payer_id === 'string' ? payload.payer.payer_id : null };
+  const rawEmail=payload.payer?.email_address;
+  const payerEmail=typeof rawEmail==='string'&&rawEmail.length<=254&&/^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+$/.test(rawEmail)?rawEmail.toLowerCase():null;
+  return { captureId: capture.id, payerId: typeof payload.payer?.payer_id === 'string' ? payload.payer.payer_id : null,payerEmail };
 }

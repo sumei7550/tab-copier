@@ -28,7 +28,7 @@ try{
   assert.ok(up,'Next.js start failed: '+log.slice(-1500));
   let r=await request('/api/admin/session');assert.equal(r.status,401);
   const before=databaseCalls;
-  for(const path of ['/api/admin/recovery/preview','/api/admin/recovery/issue']){r=await request(path,'POST','',{});assert.equal(r.status,401);}
+  for(const path of ['/api/admin/recovery/preview','/api/admin/recovery/issue','/api/admin/paypal/probe']){r=await request(path,'POST','',{});assert.equal(r.status,401);}
   assert.equal(databaseCalls,before,'unauthenticated recovery must never query orders');
   r=await request('/api/admin/session','POST','',{password},'https://external.example');assert.equal(r.status,403);
   r=await request('/api/admin/session','POST','',{password:'wrong-password-123456'});assert.equal(r.status,401);assert.equal(r.headers.get('set-cookie'),null);

@@ -17,6 +17,13 @@ test('admin review resolves the current installation request and independently v
   const review=await reviewRecovery(input,f.store,async id=>{assert.equal(id,'PAYPAL123');checked=true;return f.payment;},'MERCHANT');
   assert.ok(checked);assert.equal(review.sessionId,'request');assert.equal(review.installationId,installation);assert.equal(review.purchaseEmail,null);assert.equal(review.plan,'trial');
 });
+test('email-assisted selection still verifies payment and displays independently retrieved PayPal email',async()=>{
+  const f=fixture();f.store.order=async()=>({...order,purchase_email:'contact@example.com',matchMethod:'email_candidate'});
+  const provider={...f.payment,payer:{email_address:'Payer@Example.com'}};
+  const review=await reviewRecovery({supportId:input.supportId,email:'contact@example.com',paypalEmail:'different@example.com'},f.store,async()=>provider,'MERCHANT');
+  assert.equal(review.emailMatches,true);assert.equal(review.paypalEmailMatches,false);assert.equal(review.paypalPayerEmail,'payer@example.com');assert.equal(review.captureId,'CAPTURE123');
+  assert.throws(()=>recoveryInput({supportId:input.supportId}),/INVALID_RECOVERY_INPUT/);
+});
 test('missing request, unpaid/refunded order, revoked or expired license cannot be restored',async()=>{
   const provider=async()=>{throw Error('must reject before contacting PayPal');};
   let f=fixture();f.store.session=async()=>null;await assert.rejects(reviewRecovery(input,f.store,provider,'MERCHANT'),/RECOVERY_REQUEST_NOT_FOUND/);

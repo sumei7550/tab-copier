@@ -1,5 +1,7 @@
 # Tab Copier
 
+1.3 sandbox handoff and next-computer setup: [Current progress (2026-11-27)](docs/1.3/HANDOFF_2026-11-27.md). Read this before continuing payment/recovery work; the current branch is not a Live billing release.
+
 A minimal Chrome extension that copies all open tab titles and URLs with one click, formatted as Markdown links.
 
 ## Features

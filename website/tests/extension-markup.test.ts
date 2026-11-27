@@ -11,5 +11,7 @@ test('popup and options provide every literal DOM target used by their scripts a
     for(const [,id] of (script+'\n'+client).matchAll(/\$\('([^']+)'\)/g))assert.ok(ids.includes(id),surface+' missing '+id);
     assert.ok(html.includes('type="module" src="'+surface+'.js"'));
     assert.ok(!html.includes('supportSerial'),'internal support identifier is not visible');
+    assert.ok(html.includes('id="restorePurchaseBtn"'),'both surfaces expose the actual restore action');
+    assert.ok(!html.includes('id="checkPurchaseBtn"'),'do not expose a misleading local-only purchase check');
   }
 });
